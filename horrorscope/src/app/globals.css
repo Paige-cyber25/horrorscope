@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+.header {
+  background: linear-gradient(96.72deg, #8B0000 -78.35%, #121212 93.2%);
+}
+.gradient-button {
+  background: linear-gradient(89.51deg, #8B0000 -227.84%, #121212 99.58%);
+}
+
+
+.active-link {
+  position: relative;
+}
+.active-link.current::after {
+  content: '';
+  position: absolute;
+  bottom: -12px; /* 👈 9px gap from text */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background-color: white;
+  border-radius: 50%;
+}
+
+.bg-image-section {
+  position: relative;
+  isolation: isolate;
+}
+.bg-image-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+}
+.bg-image-section > * {
+  position: relative;
+  z-index: 20;
+}
+
+
+/* :root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+} */
+
+
