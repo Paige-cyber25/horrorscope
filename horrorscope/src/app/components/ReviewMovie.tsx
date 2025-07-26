@@ -63,8 +63,12 @@ const ReviewMovie = ({ onClose, top, left }: ReviewDropdownProps) => {
   return (
     <div
       ref={dropdownRef}
-      className="absolute w-[700px] bg-white z-50 rounded-[12px] p-6 animate-fadeIn shadow-[0px_8px_8px_-4px_#1018280A] shadow-[0px_20px_24px_-4px_#1018281A]"
-      style={{ top: `${top}px`, left: `${left}px` }}
+      className="absolute w-[700px] max-w-[calc(100vw-24px)] bg-white z-50 rounded-[12px] p-6 sm:p-6 p-4 animate-fadeIn shadow-[0px_8px_8px_-4px_#1018280A] shadow-[0px_20px_24px_-4px_#1018281A]"
+      style={{ 
+        top: `${top}px`, 
+        left: typeof window !== 'undefined' && window.innerWidth < 768 ? '50%' : `${left}px`,
+        transform: typeof window !== 'undefined' && window.innerWidth < 768 ? 'translateX(-50%)' : 'none'
+      }}
     >
       <div className="flex justify-end">
         <Icon
@@ -76,10 +80,10 @@ const ReviewMovie = ({ onClose, top, left }: ReviewDropdownProps) => {
         />
       </div>
       <div className="flex flex-col gap-4">
-        <h1 className="text-[#121212] text-[24px] font-opensans font-semibold">
+        <h1 className="text-[#121212] text-[24px] sm:text-[24px] text-[20px] font-opensans font-semibold">
           Create a watch party
         </h1>
-        <div className="flex items-center gap-4 bg-[#E2E8F0] rounded-[31px] w-fit p-[4px]">
+        <div className="flex items-center gap-4 bg-[#E2E8F0] rounded-[31px] w-fit p-[4px] mx-auto sm:mx-0">
           <button
             onClick={() => handleToggle("Public")}
             className={`px-4 py-2 text-sm font-opensans font-semibold rounded-[28px] ${
@@ -108,12 +112,12 @@ const ReviewMovie = ({ onClose, top, left }: ReviewDropdownProps) => {
               id="select-movie"
               options={options}
               onChange={handleChange}
-              placeholder="Trick ‘n’ Treat"
+              placeholder="Trick 'n' Treat"
               label="Select a movie"
               customClass="mb-4"
             />
 
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <Controller
                 name="watchDate"
                 control={control}
@@ -140,7 +144,7 @@ const ReviewMovie = ({ onClose, top, left }: ReviewDropdownProps) => {
                 onChange={handleChange}
                 placeholder="6pm"
                 label="Time"
-                customClass="mb-4"
+                customClass="mb-4 sm:mb-0"
               />
               <SearchableSelect
                 id="select-timezone"
@@ -148,7 +152,7 @@ const ReviewMovie = ({ onClose, top, left }: ReviewDropdownProps) => {
                 onChange={handleChange}
                 placeholder="WAT"
                 label="Timezone"
-                customClass="mb-4"
+                customClass="mb-4 sm:mb-0"
               />
             </div>
 
