@@ -32,8 +32,8 @@ const WatchPartyCard = ({
           className="object-cover w-full h-full rounded-[12px]"
         />
       </div>
-      <div className="flex justify-between items-center gap-2 font-opensans text-[#F8F8FF]">
-        <h2 className="text-sm sm:text-base font-bold whitespace-nowrap overflow-hidden text-overflow-ellipsis max-w-[60%]">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 font-opensans text-[#F8F8FF]">
+        <h2 className="text-[12px] sm:text-base font-bold whitespace-wrap lg:whitespace-nowrap overflow-hidden text-overflow-ellipsis max-w-[60%]">
           {title}
         </h2>
         <button className="cursor-pointer text-base font-semibold text-white bg-[rgba(255,255,255,0.1)] rounded-[8px] px-2 py-1">
@@ -43,7 +43,7 @@ const WatchPartyCard = ({
       <p className="text-[12px] sm:text-[14px] font-bevietnampro font-medium text-gray-200">
         Watch on {time}, {date}
       </p>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2">
         <div className="flex overflow-x-auto">
           {participants.slice(0, 3).map((participant, index) => (
             <div
