@@ -6,11 +6,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@iconify/react";
 import Dropdown from "./Dropdown";
+import ReviewMovie from "../ReviewMovie";
 
 const Header = () => {
   const pathname = usePathname();
   const [isHydrated, setIsHydrated] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showReviewMovieModal, setShowReviewMovieModal] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 
@@ -18,8 +20,16 @@ const Header = () => {
     setIsHydrated(true);
   }, []);
 
-  const isCurrent = (path: string) => isHydrated && pathname === path;
+  const isCurrent = (path: string) => {
+    if (!isHydrated) return false;
 
+    // Special handling for the '/list' path
+    if (path === '/list') {
+      return pathname.startsWith('/list');
+    }
+    // For all other paths, use exact match
+    return pathname === path;
+  };
   const handleProfileClick = () => {
     if (profileRef.current) {
       const rect = profileRef.current.getBoundingClientRect();
@@ -30,6 +40,22 @@ const Header = () => {
       });
     }
     setShowDropdown(!showDropdown);
+  };
+
+  useEffect(() => {
+    if (showReviewMovieModal) {
+      document.body.classList.add("modal-open");
+    } else {
+      document.body.classList.remove("modal-open");
+    }
+    // Cleanup on unmount or when modal closes
+    return () => {
+      document.body.classList.remove("modal-open");
+    };
+  }, [showReviewMovieModal]);
+
+  const handleReviewMovieClick = () => {
+    setShowReviewMovieModal(true); // Open the ReviewMovie modal
   };
 
   return (
@@ -87,6 +113,17 @@ const Header = () => {
             </span>
           </div>
 
+          {/* Conditional "Review a movie" button */}
+          {pathname !== '/home' && (
+              <button
+              onClick={handleReviewMovieClick}
+              className="bg-[#F8F8FF] py-2 sm:py-3 md:py-[6px] px-4 sm:px-6 md:px-[24px] text-[#121212] text-xs sm:text-sm md:text-base font-opensans font-semibold rounded-[24px] cursor-pointer"
+            >
+              Review a movie
+            </button>
+          )}
+
+
           {/* Profile */}
           <div
             className="flex items-center gap-1 cursor-pointer"
@@ -111,6 +148,9 @@ const Header = () => {
           top={dropdownPosition.top}
           left={dropdownPosition.left}
         />
+      )}
+      {showReviewMovieModal && (
+        <ReviewMovie onClose={() => setShowReviewMovieModal(false)} />
       )}
     </main>
   );

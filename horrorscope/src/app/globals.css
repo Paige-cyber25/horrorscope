@@ -37,6 +37,9 @@
   position: relative;
   z-index: 20;
 }
+body.modal-open {
+  overflow: hidden; /* Prevents scrolling of the background content */
+}
 
 
 /* :root {

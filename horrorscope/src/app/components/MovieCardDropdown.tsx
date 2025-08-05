@@ -5,12 +5,9 @@ import React, { useRef } from "react";
 import type { RefObject } from "react";
 import Link from "next/link";
 import useOnClickOutside from "@/hooks/useOnClickOutside";
+import { DropdownProps } from "@/utils/utils";
 
-interface DropdownProps {
-    onClose: () => void;
-    top: number;
-    left: number;
-  }
+
 
 const MovieCardsDropdown = ({ onClose, top, left }: DropdownProps) => {
   const modalRef = useRef<HTMLDivElement>(null);

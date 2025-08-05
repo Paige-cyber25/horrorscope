@@ -13,7 +13,6 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     <>
       {!isAuthPage && <Header />}
       {children}
-      <div id="modal"></div>
       {!isAuthPage && <Footer />}
     </>
   );

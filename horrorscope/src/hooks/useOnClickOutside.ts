@@ -1,22 +1,27 @@
-"use client"
+// hooks/useOnClickOutside.ts
+"use client";
 
-import { useEffect } from 'react';
+import { useEffect, RefObject } from 'react';
 
-const useOnClickOutside = <T extends HTMLElement | null>(
-  ref: React.RefObject<T>, 
-  handler: (event: MouseEvent | TouchEvent) => void
+const useOnClickOutside = <T extends Element | null, E extends Element | null>(
+  ref: RefObject<T>, 
+  handler: (event: MouseEvent | TouchEvent) => void,
+  exceptionRef?: RefObject<E>
 ) => {
   useEffect(() => {
     const listener = (event: MouseEvent | TouchEvent) => {
-      // Check if event.target is an Element before using closest
-      const targetElement = event.target as Element;
-
-      if (targetElement.closest && targetElement.closest('#modalRoot')) {
+      // Do nothing if clicking the ref's element or descendant elements
+      // or if clicking the exceptionRef's element or descendant elements.
+      if (
+        !ref.current ||
+        ref.current.contains(event.target as Node) ||
+        (exceptionRef && exceptionRef.current && exceptionRef.current.contains(event.target as Node))
+      ) {
         return;
       }
-
-      // Do nothing if clicking ref's element or descendant elements
-      if (!ref.current || ref.current.contains(event.target as Node)) {
+      
+      const targetElement = event.target as Element;
+      if (targetElement.closest && targetElement.closest('#modalRoot')) {
         return;
       }
 
@@ -30,7 +35,8 @@ const useOnClickOutside = <T extends HTMLElement | null>(
       document.removeEventListener('mousedown', listener);
       document.removeEventListener('touchstart', listener);
     };
-  }, [ref, handler]);
+    // The fix: Conditionally add exceptionRef to the dependency array
+  }, [ref, handler, ...(exceptionRef ? [exceptionRef] : [])]); 
 };
 
 export default useOnClickOutside;

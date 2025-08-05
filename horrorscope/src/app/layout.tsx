@@ -93,6 +93,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${OpenSans.variable} ${BeVietnamPro.variable} antialiased`}>
       <LayoutWrapper>{children}</LayoutWrapper>
+      <div id="modal-root"></div> 
       </body>
     </html>
   );

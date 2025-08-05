@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
 import MovieList from "../components/MovieList";
@@ -202,32 +202,24 @@ const popularLists = [
 ];
 
 const Page = () => {
-  const [showReviewDropdown, setShowReviewDropdown] = useState(false);
+  const [showReviewMovieModal, setShowReviewMovieModal] = useState(false);
   const reviewButtonRef = useRef<HTMLButtonElement>(null);
   const imageContainerRef = useRef<HTMLDivElement>(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 
-  const handleReviewButtonClick = () => {
-    if (reviewButtonRef.current && imageContainerRef.current) {
-      const rect = imageContainerRef.current.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const dropdownWidth = 700;
-      let leftPosition = viewportWidth * 0.24;
-
-      if (viewportWidth < 640) {
-        leftPosition = (viewportWidth - dropdownWidth) / 2;
-      } else if (leftPosition + dropdownWidth > viewportWidth) {
-        leftPosition = viewportWidth - dropdownWidth - 16;
-      } else if (leftPosition < 16) {
-        leftPosition = 16;
-      }
-
-      setDropdownPosition({
-        top: rect.top + window.scrollY,
-        left: leftPosition,
-      });
+  useEffect(() => {
+    if (showReviewMovieModal) {
+      document.body.classList.add("modal-open");
+    } else {
+      document.body.classList.remove("modal-open");
     }
-    setShowReviewDropdown(!showReviewDropdown);
+    return () => {
+      document.body.classList.remove("modal-open");
+    };
+  }, [showReviewMovieModal]);
+
+  const handleReviewMovieClick = () => {
+    setShowReviewMovieModal(true);
   };
 
   return (
@@ -253,7 +245,7 @@ const Page = () => {
           <div className="flex justify-center items-center">
             <button
               className="bg-[#F8F8FF] py-2 sm:py-3 md:py-4 px-4 sm:px-6 md:px-[93px] text-midnight-black text-xs sm:text-sm md:text-base font-opensans font-semibold rounded-[24px] cursor-pointer"
-              onClick={handleReviewButtonClick}
+              onClick={handleReviewMovieClick}
               ref={reviewButtonRef}
             >
               Review a movie
@@ -271,12 +263,8 @@ const Page = () => {
         </div>
       </div>
 
-      {showReviewDropdown && (
-        <ReviewMovie
-          onClose={() => setShowReviewDropdown(false)}
-          top={dropdownPosition.top}
-          left={dropdownPosition.left}
-        />
+      {showReviewMovieModal && (
+        <ReviewMovie onClose={() => setShowReviewMovieModal(false)} />
       )}
 
       <div className="mt-6 sm:mt-10 px-4 sm:px-[56px]">
@@ -323,7 +311,10 @@ const Page = () => {
             </div>
             <div className="flex flex-col gap-4">
               {popularReviews.map((review) => (
-                <div key={review.id} className="flex flex-col sm:flex-row gap-3">
+                <div
+                  key={review.id}
+                  className="flex flex-col sm:flex-row gap-3"
+                >
                   <div className="relative w-full sm:w-[266px] h-[200px] sm:h-[266px] flex-shrink-0">
                     <Image
                       src={review.imageSrc}
@@ -378,7 +369,7 @@ const Page = () => {
               ))}
             </div>
           </div>
-          
+
           <div className="flex-[1] w-full lg:w-auto flex flex-col gap-8 lg:gap-[48px]">
             <div className="flex-1">
               <div className="flex justify-between items-center mb-2">
@@ -446,7 +437,7 @@ const Page = () => {
                 ))}
               </div>
             </div>
-            
+
             <div className="flex-1">
               <div className="flex justify-between items-center mb-2">
                 <h1 className="text-[18px] sm:text-[20px] md:text-[24px] font-opensans font-bold">
