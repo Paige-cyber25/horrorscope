@@ -205,7 +205,6 @@ const Page = () => {
   const [showReviewMovieModal, setShowReviewMovieModal] = useState(false);
   const reviewButtonRef = useRef<HTMLButtonElement>(null);
   const imageContainerRef = useRef<HTMLDivElement>(null);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 
   useEffect(() => {
     if (showReviewMovieModal) {

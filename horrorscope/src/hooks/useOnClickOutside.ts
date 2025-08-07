@@ -4,7 +4,7 @@
 import { useEffect, RefObject } from 'react';
 
 const useOnClickOutside = <T extends Element | null, E extends Element | null>(
-  ref: RefObject<T>, 
+  ref: RefObject<T>,
   handler: (event: MouseEvent | TouchEvent) => void,
   exceptionRef?: RefObject<E>
 ) => {
@@ -15,11 +15,11 @@ const useOnClickOutside = <T extends Element | null, E extends Element | null>(
       if (
         !ref.current ||
         ref.current.contains(event.target as Node) ||
-        (exceptionRef && exceptionRef.current && exceptionRef.current.contains(event.target as Node))
+        (exceptionRef?.current && exceptionRef.current.contains(event.target as Node))
       ) {
         return;
       }
-      
+
       const targetElement = event.target as Element;
       if (targetElement.closest && targetElement.closest('#modalRoot')) {
         return;
@@ -35,8 +35,7 @@ const useOnClickOutside = <T extends Element | null, E extends Element | null>(
       document.removeEventListener('mousedown', listener);
       document.removeEventListener('touchstart', listener);
     };
-    // The fix: Conditionally add exceptionRef to the dependency array
-  }, [ref, handler, ...(exceptionRef ? [exceptionRef] : [])]); 
+  }, [ref, handler, exceptionRef]); // Include exceptionRef directly
 };
 
 export default useOnClickOutside;

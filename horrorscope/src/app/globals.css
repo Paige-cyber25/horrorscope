@@ -40,6 +40,9 @@
 body.modal-open {
   overflow: hidden; /* Prevents scrolling of the background content */
 }
+.custom-gradient {
+  background: linear-gradient(89.51deg, rgba(139, 0, 0, 0.5) -227.84%, rgba(255, 255, 255, 0.5) 99.58%);
+}
 
 
 /* :root {

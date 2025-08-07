@@ -91,7 +91,10 @@ const Page = () => {
         </h1>
         <div className="flex items-center gap-2">
           <Icon icon="ph:dot" className="text-2xl sm:text-3xl text-[#F8F8FF]" />
-          <Icon icon="meteor-icons:share" className="text-2xl sm:text-3xl text-[#F8F8FF]" />
+          <Icon
+            icon="meteor-icons:share"
+            className="text-2xl sm:text-3xl text-[#F8F8FF]"
+          />
           <span className="text-[#F6F8F9] text-[18px] sm:text-[24px] font-normal font-opensans">
             Share
           </span>
@@ -156,21 +159,27 @@ const Page = () => {
             icon="ic:baseline-search"
             className="w-5 sm:w-6 h-5 sm:h-6 md:w-5 md:h-5"
           />
-          <span className="text-xs sm:text-sm font-medium font-opensans">Search</span>
+          <span className="text-xs sm:text-sm font-medium font-opensans">
+            Search
+          </span>
         </div>
         <div className="text-[#F8F8FF] flex items-center gap-1">
           <Icon
             icon="proicons:filter"
             className="w-5 sm:w-6 h-5 sm:h-6 md:w-5 md:h-5"
           />
-          <span className="text-xs sm:text-sm font-medium font-opensans">Filter</span>
+          <span className="text-xs sm:text-sm font-medium font-opensans">
+            Filter
+          </span>
         </div>
         <div className="text-[#F8F8FF] flex items-center gap-1">
           <Icon
             icon="garden:sort-stroke-16"
             className="w-5 sm:w-6 h-5 sm:h-6 md:w-5 md:h-5"
           />
-          <span className="text-xs sm:text-sm font-medium font-opensans">Sort</span>
+          <span className="text-xs sm:text-sm font-medium font-opensans">
+            Sort
+          </span>
         </div>
       </div>
       <div className="flex gap-2 flex-col mt-4 sm:mt-6 mb-8 sm:mb-[76px]">
@@ -181,7 +190,7 @@ const Page = () => {
 
       <div className="border-t border-t-[#475569]">
         {reviews.map((review) => (
-          <div key={review.id} className="mt-4 sm:mt-[20px] border-t border-t-[#475569] pt-4 sm:pt-[20px]">
+          <div key={review.id} className="mt-4 sm:mt-[20px] pt-4 sm:pt-[20px]">
             <div className="flex justify-between items-start">
               <div className="flex items-start gap-3 sm:gap-4">
                 <div>
@@ -240,12 +249,35 @@ const Page = () => {
               </div>
               {review.hasDots && (
                 <div>
-                  <Icon icon="tabler:dots" className="text-2xl sm:text-3xl text-[#D1D5DB]" />
+                  <Icon
+                    icon="tabler:dots"
+                    className="text-2xl sm:text-3xl text-[#D1D5DB]"
+                  />
                 </div>
               )}
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="border-t border-t-[#475569] mt-4 sm:mt-[20px] pt-4 sm:pt-[20px]">
+        <div className="flex items-center gap-2 py-2 px-4 sm:py-4 sm:px-[46px] w-full rounded-lg sm:rounded-[12px] bg-[rgba(255,255,255,0.05)]">
+          <Image
+            src="/images/reviews-image.svg"
+            width={100}
+            height={100}
+            alt="User Icon"
+            className="w-6 h-6 sm:w-8 sm:h-8 rounded-full"
+          />
+          <input
+            type="text"
+            placeholder="Post a comment"
+            className="flex-1 border-none outline-none text-base sm:text-[18px] text-[#9A9EB2]"
+          />
+          <button className="px-4 py-2 sm:px-6 sm:py-4 rounded-lg sm:rounded-[16px] text-white custom-gradient cursor-pointer">
+            Save
+          </button>
+        </div>
       </div>
     </section>
   );
