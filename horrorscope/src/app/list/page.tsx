@@ -62,7 +62,7 @@ const ListPage = () => {
       <div className="mt-6 sm:mt-[40px] mx-4 sm:mx-[97px]">
         <div className="flex space-x-4 border-b border-[rgba(255,255,255,0.1)]">
           <button
-            className={`py-2 px-4 text-xs sm:text-sm font-semibold ${
+            className={`py-2 px-4 text-xs sm:text-sm font-semibold cursor-pointer ${
               activeTab === "All list"
                 ? "border-b-1 border-[#F8F8FF] text-[#F8F8FF]"
                 : "border-b-1 border-transparent text-gray-700"
@@ -72,7 +72,7 @@ const ListPage = () => {
             All list
           </button>
           <button
-            className={`py-2 px-4 text-xs sm:text-sm font-semibold ${
+            className={`py-2 px-4 text-xs sm:text-sm font-semibold cursor-pointer ${
               activeTab === "My list"
                 ? "border-b-1 border-[#F8F8FF] text-[#F8F8FF]"
                 : "border-b-1 border-transparent text-gray-700"
