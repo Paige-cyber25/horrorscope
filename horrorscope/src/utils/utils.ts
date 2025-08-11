@@ -36,3 +36,21 @@ export interface FormData {
   watchDate: string;
   description: string;
 }
+
+// Define the type for a movie object for type safety
+export interface IMovie {
+  id: string;
+  imageSrc: string;
+  title: string;
+  reviews: number;
+  likes: number;
+  comments: number;
+  year: string;
+}
+
+// Define the props for the BrowseOption component
+export interface BrowseOptionProps {
+  title: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}

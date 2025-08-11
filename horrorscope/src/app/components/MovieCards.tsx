@@ -55,7 +55,7 @@ const MovieCard = ({
           src={imageSrc}
           alt={title}
           fill
-          className="object-cover w-full h-full"
+          className="object-cover w-full h-full rounded-[6px]"
         />
       </div>
       {/* Movie Info */}
