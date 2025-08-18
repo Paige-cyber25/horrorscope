@@ -59,7 +59,7 @@ const Header = () => {
   };
 
   return (
-    <main className="relative pt-[54px] px-[56px] pb-[38px] w-full text-white header w-full">
+    <main className="relative pt-[54px] px-[30px] sm:px-[56px] pb-[38px] w-full text-white header w-full">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 w-full">
         {/* Logo */}
         <div className="flex-shrink-0">

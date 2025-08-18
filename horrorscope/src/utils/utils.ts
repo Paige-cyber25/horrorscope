@@ -22,13 +22,9 @@ export interface ListItemProps {
     likes: number;
     comments: number;
     total: number;
-    reviewer: string;
-    published: string;
+    reviewer?: string;
+    published?: string;
   };
-}
-
-export interface ReviewDropdownProps {
-  onClose: () => void;
 }
 
 export interface FormData {
@@ -51,6 +47,20 @@ export interface IMovie {
 // Define the props for the BrowseOption component
 export interface BrowseOptionProps {
   title: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   defaultOpen?: boolean;
 }
+
+// Define the tab names as a union type
+export type TabName = "Films" | "Activity" | "Reviews" | "Watchlist" | "List" | "Watch party";
+
+// Define the type for tabCounts
+export interface TabCounts {
+  Films: number;
+  Activity: number;
+  Reviews: number;
+  Watchlist: number;
+  List: number;
+  "Watch party": number;
+}
+

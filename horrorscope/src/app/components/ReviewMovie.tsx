@@ -8,9 +8,9 @@ import Button from "./button/Button";
 import Input from "./input/Input";
 import SearchableSelect from "./input/SearchableSelect";
 import TextArea from "./input/TextArea";
-import { FormData, ReviewDropdownProps } from "@/utils/utils";
+import { DropdownProps, FormData } from "@/utils/utils";
 
-const ReviewMovie = ({ onClose }: ReviewDropdownProps) => {
+const ReviewMovie = ({ onClose }: DropdownProps) => {
   const modalOverlayRef = useRef<HTMLDivElement>(null);
   const [visibility, setVisibility] = useState<"Public" | "Private" | null>(
     "Private"
