@@ -6,7 +6,8 @@ import { Icon } from "@iconify/react";
 import MovieList from "../components/MovieList";
 import ReviewMovie from "../components/ReviewMovie";
 import WatchPartyList from "../components/WatchPartyList";
-import { formatNumber } from "@/utils/utils";
+import { capitalizeFirstLetter, formatNumber } from "@/utils/utils";
+import { useUser } from "@/hooks/useUser";
 
 // Sample movie data
 const recommendedMovies = [
@@ -202,6 +203,7 @@ const popularLists = [
 ];
 
 const Page = () => {
+  const user = useUser();
   const [showReviewMovieModal, setShowReviewMovieModal] = useState(false);
   const reviewButtonRef = useRef<HTMLButtonElement>(null);
   const imageContainerRef = useRef<HTMLDivElement>(null);
@@ -221,6 +223,8 @@ const Page = () => {
     setShowReviewMovieModal(true);
   };
 
+  const avatarSrc = user?.displayPictureUrl || "/images/default-avatar.png";
+
   return (
     <section className="header h-full w-full">
       <div
@@ -238,7 +242,7 @@ const Page = () => {
 
         <div className="absolute top-1/2 sm:top-[38%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center justify-center text-center px-4 space-y-4 sm:space-y-6">
           <div className="text-white text-[12px] sm:text-[24px] md:text-[36px] font-opensans font-extrabold max-w-[100%] sm:max-w-[700px] md:max-w-[1019px] leading-tight sm:leading-normal">
-            Welcome back, Toba. Your HorrorScope feed gets spookier as you
+            Welcome back, {capitalizeFirstLetter(user?.userName ?? 'User')}. Your HorrorScope feed gets spookier as you
             follow members and rate films.
           </div>
           <div className="flex justify-center items-center">

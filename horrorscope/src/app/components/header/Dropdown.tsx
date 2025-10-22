@@ -37,7 +37,7 @@ const Dropdown = ({ onClose, top, left }: DropdownProps) => {
       </div>
       <div className="border-t border-t-[rgba(158,158,158,0.25)] mt-[10px] pt-[10px]">
         <Link
-          href="/login"
+          href="auth/login"
           className="text-red-900 text-sm font-opensans font-normal"
         >
           Logout

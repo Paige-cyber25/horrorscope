@@ -32,7 +32,7 @@ const Radio = ({
       />
       <label
         htmlFor={label}
-        className="ml-2 !text-base !font-normal text-[#CBD5E1] font-opensans font-normal"
+        className="ml-2 !text-base !font-normal text-midnight-black font-opensans font-normal"
       >
         {label}
       </label>

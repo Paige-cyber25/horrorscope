@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,8 @@ import { Icon } from "@iconify/react";
 import Button from "@/app/components/button/Button";
 import Radio from "@/app/components/input/Radio";
 import Input from "@/app/components/input/Input";
+import { useSignupMutation } from "../useRegisterHandlers"; // Adjust path as needed
+import Spinner from "@/app/components/spinner/Spinner";
 
 interface FormData {
   isOver18: string;
@@ -29,6 +31,7 @@ const Page: React.FC = () => {
     "text" | "password"
   >("password");
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const signupMutation = useSignupMutation();
 
   const {
     handleSubmit,
@@ -36,6 +39,7 @@ const Page: React.FC = () => {
     formState: { errors },
     setValue,
     watch,
+    getValues
   } = useForm<FormData>({
     mode: "all",
     defaultValues: {
@@ -49,6 +53,14 @@ const Page: React.FC = () => {
   });
 
   const selectedGenres = watch("genres");
+  const isPending = signupMutation.isPending;
+  const isSuccess = signupMutation.isSuccess;
+
+  useEffect(() => {
+    if (isSuccess) {
+      router.push("/auth/login");
+    }
+  }, [isSuccess, router]);
 
   const allGenres: string[] = [
     "Found Footage",
@@ -87,23 +99,34 @@ const Page: React.FC = () => {
         return; // Prevent proceeding if required fields are empty
       }
       if (step === 3) {
-        console.log("Form Data:", data);
-        router.push("/auth/login");
+        if (isPending) return; // Prevent double-submit
+        const formData = getValues();
+        console.log("Mutating with payload:", formData); // Debug log
+        signupMutation.mutate({
+          userName: formData.username,
+          email: formData.email,
+          password: formData.password,
+        });
+        return;
       } else {
         setStep((prev) => prev + 1);
       }
     },
-    [step, router]
+    [step, isPending, getValues, signupMutation]
   );
 
   const handleSkip = useCallback(() => {
     if (step === 3) {
-      // Get current form data
-      const formData = watch();
-      console.log("Skipped Genre Selection, Form Data:", formData);
-      router.push("/auth/login");
+      if (isPending) return;
+      const formData = getValues();
+      console.log("Skipping and mutating with payload:", formData); // Debug log
+      signupMutation.mutate({
+        userName: formData.username,
+        email: formData.email,
+        password: formData.password,
+      });
     }
-  }, [step, watch, router]);
+  }, [step, isPending, getValues, signupMutation]);
 
   const handleBack = useCallback(() => {
     if (step > 1) {
@@ -364,24 +387,27 @@ const Page: React.FC = () => {
               <p className="text-midnight-black font-opensans text-[20px] font-normal">
                 Select your Horror Subgenre Preferences
               </p>
+              <p className="text-sm font-opensans text-midnight-black font-normal mt-2 opacity-70">
+                (Optional - you can update this later)
+              </p>
             </div>
             <div className="flex justify-between items-center mt-4">
               <span className="text-midnight-black font-opensans text-sm font-semibold">
                 {allGenres.length} Total
               </span>
-              <div className="relative right-[-12%]">
+              {/* <div className="relative right-[-12%]">
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search"
-                  className="py-2 font-opensans font-semibold text-base text-midnight-black focus:outline-none"
+                  className="py-2 font-opensans font-semibold text-base text-midnight-black focus:outline-none border border-gray-300 rounded px-3 pr-10"
                 />
                 <Icon
                   icon="material-symbols:search"
-                  className="w-5 h-5 text-[#4B5563] absolute right-20 top-1/2 transform -translate-y-1/2"
+                  className="w-5 h-5 text-[#4B5563] absolute right-3 top-1/2 transform -translate-y-1/2"
                 />
-              </div>
+              </div> */}
             </div>
             <div className="mt-3">
               <div className="flex flex-wrap gap-2">
@@ -392,7 +418,7 @@ const Page: React.FC = () => {
                     className={`cursor-pointer px-3 py-[10px] rounded-[10px] font-opensans text-base font-semibold transition-all ${
                       selectedGenres.includes(genre)
                         ? "bg-[#121212] text-white shadow-[0px_0px_0px_4px_#1F293740]"
-                        : "bg-white text-[#242E49]"
+                        : "bg-white text-[#242E49] border border-gray-200"
                     }`}
                   >
                     {genre}
@@ -430,6 +456,31 @@ const Page: React.FC = () => {
       default:
         return null;
     }
+  };
+
+  const renderSubmitButton = () => {
+    if (step === 1 || step === 2) {
+      const label = step === 1 ? "Next" : "Next"; // Changed step 2 to "Next" for clarity
+      return (
+        <Button
+          type="submit"
+          label={label}
+          customClass="gradient-button !text-white text-base font-opensans font-semibold !py-4 !px-[14px] !w-full !rounded-[24px] !h-[56px]"
+        />
+      );
+    }
+    if (step === 3) {
+      return (
+        <button
+          type="submit"
+          disabled={isPending}
+          className="gradient-button !text-white text-base font-opensans font-semibold !py-4 !px-[14px] !w-full !rounded-[24px] !h-[56px] flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        >
+          {isPending ? <Spinner size="medium" /> : "Save"}
+        </button>
+      );
+    }
+    return null;
   };
 
   return (
@@ -500,27 +551,7 @@ const Page: React.FC = () => {
         >
           {renderFormContent()}
           <div className="flex gap-4">
-            {step === 1 && (
-              <Button
-                type="submit"
-                label="Next"
-                customClass="gradient-button !text-white text-base font-opensans font-semibold !py-4 !px-[14px] !w-full !rounded-[24px] !h-[56px]"
-              />
-            )}
-            {step === 2 && (
-              <Button
-                type="submit"
-                label="Sign up"
-                customClass="gradient-button !text-white text-base font-opensans font-semibold !py-4 !px-[14px] !w-full !rounded-[24px] !h-[56px]"
-              />
-            )}
-            {step === 3 && (
-              <Button
-                type="submit"
-                label="Save"
-                customClass="gradient-button !text-white text-base font-opensans font-semibold !py-4 !px-[14px] !w-full !rounded-[24px] !h-[56px]"
-              />
-            )}
+            {renderSubmitButton()}
           </div>
         </form>
         {step === 2 && (
@@ -540,7 +571,8 @@ const Page: React.FC = () => {
           <div className="mt-6 flex items-center justify-center gap-1">
             <span
               onClick={handleSkip}
-              className="text-gray-500 font-opensans text-sm font-semibold"
+              className="text-gray-500 font-opensans text-sm font-semibold cursor-pointer hover:underline"
+              role="button"
             >
               Skip
             </span>

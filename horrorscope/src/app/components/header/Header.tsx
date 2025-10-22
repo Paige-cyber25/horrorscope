@@ -7,8 +7,11 @@ import { usePathname } from "next/navigation";
 import { Icon } from "@iconify/react";
 import Dropdown from "./Dropdown";
 import ReviewMovie from "../ReviewMovie";
+import { useUser } from "@/hooks/useUser";
+import { capitalizeFirstLetter } from "@/utils/utils";
 
 const Header = () => {
+  const user = useUser();
   const pathname = usePathname();
   const [isHydrated, setIsHydrated] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -135,7 +138,7 @@ const Header = () => {
               className="w-6 h-6 md:w-5 md:h-5 sm:w-4 sm:h-4"
             />
             <span className="text-ghost-white text-base font-opensans font-semibold">
-              Toba109
+              {capitalizeFirstLetter(user?.userName ?? 'User')}
             </span>
             <Icon icon="ep:arrow-down-bold" className="w-4 h-4" />
           </div>

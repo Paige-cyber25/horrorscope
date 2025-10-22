@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,6 +8,8 @@ import { Controller, useForm } from "react-hook-form";
 import { Icon } from "@iconify/react";
 import Input from "@/app/components/input/Input";
 import Button from "@/app/components/button/Button";
+import { useLoginMutation } from "../useLoginHandlers";
+import Spinner from "@/app/components/spinner/Spinner";
 
 interface FormData {
   email: string;
@@ -17,6 +19,17 @@ interface FormData {
 const Page = () => {
   const router = useRouter();
   const [type, setType] = useState<"text" | "password">("password");
+
+  const loginMutation = useLoginMutation();
+  const isPending = loginMutation.isPending;
+  const isSuccess = loginMutation.isSuccess;
+
+  // Redirect on success
+  useEffect(() => {
+    if (isSuccess) {
+      router.push("/home");
+    }
+  }, [isSuccess, router]);
 
   const {
     handleSubmit,
@@ -29,6 +42,7 @@ const Page = () => {
       password: "",
     },
   });
+
   const showAction = () => {
     if (type === "password") {
       setType("text");
@@ -37,14 +51,11 @@ const Page = () => {
     }
   };
 
-  const onSubmit = async (data: FormData) => {
-    console.log("Login data:", data);
-    // Do actual login logic here using `data.email`, `data.password`
-  
-    // Simulate login success
-    router.push("/home");
+  const onSubmit = (data: FormData) => {
+    if (isPending) return;
+    loginMutation.mutate(data);
   };
-  
+
   return (
     <div className="header relative min-h-screen w-full pb-[100px]">
       {/* Background images for large screens */}
@@ -95,6 +106,13 @@ const Page = () => {
           <Controller
             name="email"
             control={control}
+            rules={{
+              required: "Email is required",
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Invalid email address",
+              },
+            }}
             render={({ field: { value, onChange, onBlur } }) => (
               <Input
                 type="email"
@@ -125,6 +143,13 @@ const Page = () => {
             <Controller
               name="password"
               control={control}
+              rules={{
+                required: "Password is required",
+                minLength: {
+                  value: 6,
+                  message: "Password must be at least 6 characters",
+                },
+              }}
               render={({ field: { value, onChange, onBlur } }) => (
                 <Input
                   type={type}
@@ -175,11 +200,13 @@ const Page = () => {
             Forgot Password?
           </span>
           <div className="mt-6">
-            <Button
+            <button
               type="submit"
-              label="Log In"
-              customClass="gradient-button !text-white text-base font-opensans font-semibold !py-4 !px-[14px] !w-full !rounded-[24px] !h-[56px]"
-            />
+              disabled={isPending}
+              className="gradient-button !text-white text-base font-opensans font-semibold !py-4 !px-[14px] !w-full !rounded-[24px] !h-[56px] flex items-center justify-center disabled:opacity-50"
+            >
+              {isPending ? <Spinner size="medium" /> : "Log In"}
+            </button>
           </div>
 
           <div className="mt-6 flex items-center justify-center gap-1">

@@ -64,3 +64,55 @@ export interface TabCounts {
   "Watch party": number;
 }
 
+export type LoginPayload = {
+  email: string;
+  password: string;
+};
+
+export type LoginData = {
+  id: string;
+  email: string;
+  passwordHash: string;
+  userName: string;
+  displayPictureUrl: string | null;
+  isEmailVerified: boolean;
+  accessToken: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type LoginResponse = {
+  success: boolean;
+  message: string;
+  data: LoginData;
+};
+
+export type SignupPayload = {
+  userName: string;
+  email: string;
+  password: string;
+};
+
+export type ApiResponse<T> = {
+  success: boolean;
+  message: string;
+  data: T;
+};
+
+export type SignupData = {
+  id: string;
+  email: string;
+  passwordHash: string;
+  userName: string;
+  displayPictureUrl: string | null;
+  isEmailVerified: boolean;
+  accessToken: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export const capitalizeFirstLetter = (str: string) => {
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
