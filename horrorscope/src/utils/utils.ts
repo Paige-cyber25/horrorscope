@@ -152,3 +152,55 @@ export interface Option {
   metaData?: unknown;
 }
 
+export interface ListFormData {
+  name: string;
+  description: string;
+  filmId: string; 
+  isPublic: string; 
+}
+
+// utils/utils.ts (Update or add these interfaces)
+
+// Type for the film object within a list
+export interface ListFilm {
+  id: string;
+  title: string;
+  posterUrl: string | null;
+  likedCount: number;
+  reviewCount: number;
+  averageRating: string;
+  // ... other film properties you might use
+}
+
+// Type for the user object within a list
+export interface ListUser {
+  id: string;
+  userName: string;
+  displayPictureUrl: string | null;
+}
+
+// Type for the main list object
+export interface ListData {
+  id: string;
+  name: string;
+  description: string;
+  isPublic: boolean;
+  createdAt: string;
+  updatedAt: string;
+  films: ListFilm[];
+  user: ListUser;
+  likes?: number;
+  comments?: number;
+  total?: number; // Total films, can be films.length
+}
+
+export interface MyListData {
+  id: string;
+  name: string;
+  description: string;
+  isPublic: boolean;
+  createdAt: string;
+  updatedAt: string;
+  films: ListFilm[];
+}
+

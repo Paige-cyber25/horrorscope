@@ -1,77 +1,71 @@
+
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import { formatNumber } from "@/utils/utils";
+import { capitalizeFirstLetter, formatNumber } from "@/utils/utils";
 import MovieList from "@/app/components/MovieList";
+import React from "react";  
+import { useMyLists } from "@/hooks/useMyLists";
+import ShimmerListItem from "@/app/components/ShimmerListItem";
 
-const recommendedMovies = [
-  {
-    id: "1",
-    imageSrc: "/images/bagman.png",
-    title: "Bagman (2024)",
-    reviews: 120,
-    likes: 1500,
-    comments: 2300,
-  },
-  {
-    id: "2",
-    imageSrc: "/images/halloween.png",
-    title: "The Halloween (2022)",
-    reviews: 85,
-    likes: 1000000,
-    comments: 500,
-  },
-  {
-    id: "3",
-    imageSrc: "/images/trick-r-treat.png",
-    title: "Trick 'r Treat (2024)",
-    reviews: 200,
-    likes: 25000,
-    comments: 1500000,
-  },
-  {
-    id: "4",
-    imageSrc: "/images/omen.png",
-    title: "The First Omen (2025)",
-    reviews: 150,
-    likes: 999,
-    comments: 100,
-  },
-];
+// --- TYPE DEFINITIONS ---
+interface FilmProps {
+  id: string;
+  imageSrc: string;
+  title: string;
+  reviews: number; 
+  likes: number;   
+  comments: number; 
+}
 
-const reviews = [
-  {
-    id: "r1",
-    name: "Victoria Chad",
-    text: "Third episode one of the most astonishing hours of television I’ve ever seen in my life",
-    likes: 2000,
-    comments: 4700,
-    hasDots: true,
-  },
-  {
-    id: "r2",
-    name: "Jenny Wilson",
-    text: "Third episode one of the most astonishing hours of television I’ve ever seen in my life",
-    likes: 2000,
-    comments: 4700,
-    hasDots: false,
-  },
-  {
-    id: "r3",
-    name: "Jenny Wilson",
-    text: "Third episode one of the most astonishing hours of television I’ve ever seen in my life",
-    likes: 2000,
-    comments: 4700,
-    hasDots: false,
-  },
-];
 
 const Page = () => {
+    
+    const { data: allUserLists, isLoading, isError, error } = useMyLists();
+    
+   const currentList = allUserLists && allUserLists.length > 0 ? allUserLists[0] : undefined;
+
+    if (isLoading) {
+        return <div className="header h-full w-full pt-8 sm:pt-[120px] px-4 sm:px-[97px] pb-8 sm:pb-20 text-white"><ShimmerListItem /></div>;
+    }
+
+    if (isError) {
+         return <div className="header h-full w-full pt-8 sm:pt-[120px] px-4 sm:px-[97px] pb-8 sm:pb-20 text-red-500">Error: {error?.message}</div>;
+    }
+    
+    if (!currentList) {
+         return <div className="header h-full w-full pt-8 sm:pt-[120px] px-4 sm:px-[97px] pb-8 sm:pb-20 text-white">List not found.</div>;
+    }
+
+    // --- DYNAMIC DATA MAPPING & AGGREGATION ---
+    const listMovies: FilmProps[] = currentList.films
+        .filter(film => film.posterUrl)
+        .map(film => ({
+            id: film.id,
+            imageSrc: film.posterUrl!,
+            title: capitalizeFirstLetter(film.title),
+            // Use averageRating for 'reviews' score, convert to number
+            reviews: parseFloat(film.averageRating) || 0,
+            likes: film.likedCount || 0,
+            comments: film.reviewCount || 0,
+        }));
+
+    const totalListLikes = listMovies.reduce((sum, movie) => sum + movie.likes, 0);
+    const totalListComments = listMovies.reduce((sum, movie) => sum + movie.comments, 0);
+    
+    // Format the date dynamically
+    const published = new Date(currentList.createdAt).toLocaleDateString(undefined, {
+        month: 'short', day: 'numeric', year: 'numeric'
+    }).replace(/\./g, '');
+    // ----------------------------
+
+
   return (
     <section className="header h-full w-full pt-8 sm:pt-[120px] px-4 sm:px-[97px] pb-8 sm:pb-20">
       <div>
+        {/* Back Button Link */}
         <Link href="/list" className="flex items-center gap-2 sm:gap-3">
           <div className="flex items-center justify-center w-5 sm:w-6 h-5 sm:h-6 rounded-[4px] bg-white border border-[#E4E7EC]">
             <Icon
@@ -87,7 +81,7 @@ const Page = () => {
 
       <div className="mt-6 sm:mt-[48px] flex flex-col sm:flex-row sm:items-center gap-2">
         <h1 className="text-[#F1F5F9] text-[24px] sm:text-[36px] font-semibold font-opensans">
-          Ayodeji’s Specials
+          {currentList.name} {/* DYNAMIC: List Name */}
         </h1>
         <div className="flex items-center gap-2">
           <Icon icon="ph:dot" className="text-2xl sm:text-3xl text-[#F8F8FF]" />
@@ -102,25 +96,27 @@ const Page = () => {
       </div>
 
       <div className="flex flex-col gap-3 mb-4 sm:mb-6">
+        {/* Reviewer Info: Remains hardcoded as data is unavailable in current API response */}
         <div className="flex items-center gap-2">
           <Image
-            src="/images/reviews-image.svg"
+            src="/images/reviews-image.svg" // Hardcoded avatar
             width={20}
             height={20}
             alt="Avatar"
             className="rounded-full w-[16px] h-[16px] sm:w-6 sm:h-6"
           />
           <span className="uppercase text-gray-200 text-[10px] sm:text-[12px] font-bevietnampro font-medium">
-            jonathan fujii
+            jonathan fujii {/* Hardcoded name */}
           </span>
           <div className="text-[#D1D5DB] flex items-center">
             <Icon icon="ph:dot" className="text-2xl sm:text-3xl" />
             <span className="text-[10px] sm:text-[12px] font-opensans font-normal">
-              Published 6 months ago
+              Published {published} {/* DYNAMIC: Date */}
             </span>
           </div>
         </div>
 
+        {/* Dynamic List Stats (Aggregated) */}
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1">
             <Icon
@@ -128,7 +124,7 @@ const Page = () => {
               className="w-2.5 sm:w-3 h-2.5 sm:h-3 text-[#F8F8FF]"
             />
             <span className="text-[10px] sm:text-[12px] font-medium text-gray-200">
-              {formatNumber(2000)}
+              {formatNumber(totalListLikes)} {/* DYNAMIC: Total Likes */}
             </span>
           </div>
           <div className="flex items-center gap-1">
@@ -137,7 +133,7 @@ const Page = () => {
               className="w-2.5 sm:w-3 h-2.5 sm:h-3 text-[#F8F8FF]"
             />
             <span className="text-[10px] sm:text-[12px] font-medium text-gray-200">
-              {formatNumber(4700)}
+              {formatNumber(totalListComments)} {/* DYNAMIC: Total Comments */}
             </span>
           </div>
           <span className="text-[#E5E7EB] text-xs sm:text-sm font-bevietnampro font-medium">
@@ -148,8 +144,7 @@ const Page = () => {
 
       <div className="pt-4 sm:pt-6 border-t border-t-[#475569] pb-4 sm:pb-6">
         <span className="text-[#F8F8FF] text-[18px] sm:text-[24px] font-opensans font-normal">
-          I asked reddit whats one movie everyone should watch at least once in
-          their lifetime to create a list of movies that everyone should watch.
+          { capitalizeFirstLetter(currentList.description)} {/* DYNAMIC: List Description */}
         </span>
       </div>
 
@@ -182,84 +177,15 @@ const Page = () => {
           </span>
         </div>
       </div>
+      
+      {/* Dynamic Movie Cards */}
       <div className="flex gap-2 flex-col mt-4 sm:mt-6 mb-8 sm:mb-[76px]">
-        <MovieList movies={recommendedMovies} />
-        <MovieList movies={recommendedMovies} />
-        <MovieList movies={recommendedMovies} />
+        {/* DYNAMIC: Renders films pulled from API response */}
+        <MovieList movies={listMovies} /> 
       </div>
 
-      <div className="border-t border-t-[#475569]">
-        {reviews.map((review) => (
-          <div key={review.id} className="mt-4 sm:mt-[20px] pt-4 sm:pt-[20px]">
-            <div className="flex justify-between items-start">
-              <div className="flex items-start gap-3 sm:gap-4">
-                <div>
-                  <Image
-                    src="/images/reviews-image.svg"
-                    width={20}
-                    height={20}
-                    alt="Avatar"
-                    className="rounded-full w-[16px] h-[16px] sm:w-[48px] sm:h-[48px]"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-gray-200 text-[10px] sm:text-[18px] font-opensans font-semibold">
-                      {review.name}
-                    </span>
-                    <div className="text-[#D1D5DB] flex items-center">
-                      <Icon icon="ph:dot" className="text-2xl sm:text-3xl" />
-                      <span className="text-[10px] sm:text-sm font-opensans font-semibold">
-                        Streamed on Netflix
-                      </span>
-                    </div>
-                    <div className="text-[#D1D5DB] flex items-center">
-                      <Icon icon="ph:dot" className="text-2xl sm:text-3xl" />
-                      <span className="text-[10px] sm:text-sm font-opensans font-normal">
-                        5:45 pm / 12 July 2023
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-sm sm:text-base font-opensans font-normal text-[#D1D5DB]">
-                      {review.text}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-6 sm:gap-8">
-                    <div className="flex items-center gap-1">
-                      <Icon
-                        icon="mdi:heart"
-                        className="w-4 sm:w-[18px] h-4 sm:h-[18px] text-[#E52E2E]"
-                      />
-                      <span className="text-[10px] sm:text-[19px] font-medium text-gray-200">
-                        {formatNumber(review.likes)}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Icon
-                        icon="mi:message"
-                        className="w-4 sm:w-[18px] h-4 sm:h-[18px] text-[#F8F8FF]"
-                      />
-                      <span className="text-[10px] sm:text-[19px] font-medium text-gray-200">
-                        {formatNumber(review.comments)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {review.hasDots && (
-                <div>
-                  <Icon
-                    icon="tabler:dots"
-                    className="text-2xl sm:text-3xl text-[#D1D5DB]"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
 
+      {/* Comment Input Section (Static) */}
       <div className="border-t border-t-[#475569] mt-4 sm:mt-[20px] pt-4 sm:pt-[20px]">
         <div className="flex items-center gap-2 py-2 px-4 sm:py-4 sm:px-[46px] w-full rounded-lg sm:rounded-[12px] bg-[rgba(255,255,255,0.05)]">
           <Image
@@ -272,7 +198,7 @@ const Page = () => {
           <input
             type="text"
             placeholder="Post a comment"
-            className="flex-1 border-none outline-none text-base sm:text-[18px] text-[#9A9EB2]"
+            className="flex-1 border-none outline-none text-base sm:text-[18px] text-[#9A9EB2] bg-transparent"
           />
           <button className="px-4 py-2 sm:px-6 sm:py-4 rounded-lg sm:rounded-[16px] text-white custom-gradient cursor-pointer">
             Save

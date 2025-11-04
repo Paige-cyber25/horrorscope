@@ -6,9 +6,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@iconify/react";
 import Dropdown from "./Dropdown";
-import ReviewMovie from "../CreateWatchParty";
 import { useUser } from "@/hooks/useUser";
 import { capitalizeFirstLetter } from "@/utils/utils";
+import ReviewMovie from "../ReviewMovie";
 
 const Header = () => {
   const user = useUser();

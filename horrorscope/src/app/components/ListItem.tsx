@@ -1,23 +1,44 @@
-// components/ListItem.tsx (This code is already correct)
+// components/ListItem.tsx
+
 "use client";
 
 import React, { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import useOnClickOutside from "@/hooks/useOnClickOutside";
-import { formatNumber, ListItemProps } from "@/utils/utils";
+import { formatNumber, ListData } from "@/utils/utils"; 
 import PopularListDropdown from "../list/PopularListDropdown";
 
-const ListItem = ({ list }: ListItemProps) => {
+const ListItem = ({ list }: { list: ListData }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   
-  // These useRef calls are now correctly typed and will work without errors.
   const dropdownRef = useRef<HTMLDivElement>(null);
   const dotsRef = useRef<SVGSVGElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // This line is now valid because the hook accepts different ref types.
+  // --- DATA DERIVATION ---
+  
+  // 1. Get up to 4 films with poster URLs
+  const filmsToDisplay = list.films
+    .filter(f => f.posterUrl)
+    .slice(0, 4);
+
+  const title = list.name;
+  const total = list.films.length;
+  const reviewer = list.user.userName;
+  const publishedDate = list.createdAt;
+
+  // 2. Aggregate counts from ALL films in the list
+  const totalLikes = list.films.reduce((sum, film) => sum + film.likedCount, 0);
+  const totalComments = list.films.reduce((sum, film) => sum + film.reviewCount, 0);
+  
+  // Simple published date formatter
+  const published = publishedDate ? new Date(publishedDate).toLocaleDateString(undefined, {
+      year: 'numeric', month: 'short', day: 'numeric'
+  }) : 'N/A';
+  // -------------------------
+
   useOnClickOutside(dropdownRef, () => setShowDropdown(false), dotsRef);
 
   const handleDotsClick = () => {
@@ -25,36 +46,40 @@ const ListItem = ({ list }: ListItemProps) => {
       const rect = dotsRef.current.getBoundingClientRect();
       const cardRect = cardRef.current.getBoundingClientRect();
       setDropdownPosition({
-        top: rect.bottom - cardRect.top + 5,
-        left: rect.right - cardRect.left - 160,
+        top: rect.bottom - cardRect.top + 5, 
+        left: rect.right - cardRect.left - 160, 
       });
     }
     setShowDropdown(!showDropdown);
   };
 
-
   return (
     <div key={list.id} className="flex flex-col gap-2 relative" ref={cardRef}>
+      
+      {/* --- Film Images Display --- */}
       <div className="flex overflow-x-auto sm:overflow-x-visible">
-        {list.images.map((img, index) => (
+        {/* Only maps the available films (1 to 4) and stops */}
+        {filmsToDisplay.map((film, index) => (
           <div
-            key={index}
-            className="relative w-[120px] sm:w-[150px] h-[120px] sm:h-[150px] flex-shrink-0"
+            key={film.id}
+            className="relative w-[120px] sm:w-[150px] h-[120px] sm:h-[150px] flex-shrink-0 mr-2 rounded-lg overflow-hidden" 
           >
             <Image
-              src={img}
-              alt="List Image"
+              src={film.posterUrl!}
+              alt={`${film.title} poster`}
               fill
               className="object-cover"
               priority
             />
           </div>
         ))}
+        {/* Removed: Fill remaining slots with placeholder divs up to 4 */}
       </div>
+      
       <div className="flex flex-col gap-2 mt-6">
         <div className="flex justify-between items-center text-[#F8F8FF]">
           <span className="text-sm sm:text-[20px] font-opensans font-semibold">
-            {list.title}
+            {title}
           </span>
           <Icon
             icon="mage:dots"
@@ -64,41 +89,47 @@ const ListItem = ({ list }: ListItemProps) => {
           />
         </div>
         <span className="uppercase text-[#E5E7EB] text-[12px] font-medium font-bevietnampro">
-          {list.total} films
+          {total} films
         </span>
+        
+        {/* --- Stats (Likes & Comments) --- */}
         <div className="flex items-center gap-4 sm:gap-2">
           <div className="flex items-center gap-1">
             <Icon icon="weui:like-outlined" className="w-3 h-3 text-[#F8F8FF]" />
             <span className="text-[10px] sm:text-[12px] font-medium text-gray-200">
-              {formatNumber(list.likes)}
+              {formatNumber(totalLikes)}
             </span>
           </div>
           <div className="flex items-center gap-1">
             <Icon icon="hugeicons:message-02" className="w-3 h-3 text-[#F8F8FF]" />
             <span className="text-[10px] sm:text-[12px] font-medium text-gray-200">
-              {formatNumber(list.comments)}
+              {formatNumber(totalComments)}
             </span>
           </div>
         </div>
+        
+        {/* --- Reviewer and Published Date --- */}
         <div className="flex items-center gap-2">
+          {/* Use the user's displayPictureUrl if available, otherwise use a default */}
           <Image
-            src="/images/reviews-image.svg"
+            src={list.user.displayPictureUrl || "/images/reviews-image.svg"} 
             width={20}
             height={20}
-            alt="Avatar"
-            className="rounded-full sm:w-6 sm:h-6"
+            alt={`${reviewer} avatar`}
+            className="rounded-full sm:w-6 sm:h-6 object-cover"
           />
           <span className="text-gray-200 text-[10px] sm:text-[12px] font-opensans font-medium">
-            {list.reviewer}
+            {reviewer}
           </span>
           <div className="text-[#D1D5DB] flex items-center">
             <Icon icon="ph:dot" className="text-3xl" />
             <span className="text-[12px] font-opensans font-normal">
-              Published {list.published}
+              Published {published}
             </span>
           </div>
         </div>
       </div>
+      
       {showDropdown && (
         <div
           ref={dropdownRef}

@@ -1,23 +1,59 @@
 import React, { useEffect, useRef, useState } from "react";
 import ListItem from "../components/ListItem";
 import CreateNewList from "./CreateNewList";
+import { ListData } from "@/utils/utils";
 
-const popularLists = [
-  {
-    id: "l1",
-    images: [
-      "/images/bagman.png",
-      "/images/trick-r-treat.png",
-      "/images/halloween.png",
-      "/images/omen.png",
-    ],
-    title: "Ayodeji’s Specials",
-    likes: 500000,
-    comments: 2,
-    total: 20,
-    reviewer: "Jonathan Fujii",
-    published: "6 months ago",
-  },
+const popularLists: ListData[] = [
+    {
+        // 1. Core List Data
+        id: "3f625e23-6eb1-4f1d-a440-f1054b428bd3",
+        name: "My Favorite Horror Movies", // 🎯 REQUIRED
+        description: "A list of classic and modern horror gems.", // 🎯 REQUIRED
+        isPublic: true, // 🎯 REQUIRED
+        createdAt: "2025-10-01T10:00:00.000Z", // 🎯 REQUIRED
+        updatedAt: "2025-10-01T10:00:00.000Z", // 🎯 REQUIRED
+        
+        // 2. User Data (matches ListUser interface)
+        user: { 
+            id: "u1", 
+            userName: "Jonathan Fujii", 
+            displayPictureUrl: "/images/reviews-image.svg" // Use your default image
+        }, // 🎯 REQUIRED
+        
+        // 3. Film Data (matches ListFilm[] interface)
+        films: [
+            {
+                id: "f1",
+                title: "The First Degree Burn",
+                posterUrl: "https://image.tmdb.org/t/p/w500/1A1soJ8AdidthMgR3s4pSfzThC3.jpg",
+                likedCount: 200,
+                reviewCount: 15,
+                averageRating: "8.50"
+            },
+            {
+                id: "f2",
+                title: "Silent Scream",
+                posterUrl: "https://image.tmdb.org/t/p/w500/oIOGN22bpebsZF3sJD7neONpKzG.jpg",
+                likedCount: 100,
+                reviewCount: 5,
+                averageRating: "7.00"
+            },
+            {
+                id: "f3",
+                title: "The Void",
+                posterUrl: "https://image.tmdb.org/t/p/w500/kSnoT0Wn0t1L0sYm1kM8O0Z0sT8.jpg",
+                likedCount: 50,
+                reviewCount: 2,
+                averageRating: "6.80"
+            },
+        ],
+        
+        // 4. Calculated/Optional Fields (Optional, but often useful)
+        likes: 350, // Sum of film likes
+        comments: 22, // Sum of film comments
+        total: 3, // films.length
+    },
+    // ... define your other mock lists here ...
 ];
 
 const List = () => {

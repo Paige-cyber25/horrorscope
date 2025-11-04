@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Icon } from "@iconify/react";
 import useOnClickOutside from "@/hooks/useOnClickOutside";
 import MovieCardsDropdown from "./MovieCardDropdown";
-import { formatNumber } from "@/utils/utils";
+import { capitalizeFirstLetter, formatNumber } from "@/utils/utils";
 
 interface MovieCardProps {
   imageSrc: string;
@@ -60,7 +60,7 @@ const MovieCard = ({
       </div>
       {/* Movie Info */}
       <div className="flex items-center justify-between gap-4 font-opensans text-[#F8F8FF]">
-        <span className="text-sm sm:text-base font-medium">{title}</span>
+        <span className="text-sm sm:text-base font-medium">{ capitalizeFirstLetter(title)}</span>
         <div className="flex items-center gap-2">
           <span className="text-[12px] font-medium text-gray-200">
             {reviews}
