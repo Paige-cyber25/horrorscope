@@ -1,55 +1,76 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Icon } from "@iconify/react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, SubmitHandler } from "react-hook-form";
 import useOnClickOutside from "@/hooks/useOnClickOutside";
+import { usePopularHorrorMovies, useReviewMovieMutation } from "@/hooks/useMovieHooks";
 import Button from "./button/Button";
 import Input from "./input/Input";
 import SearchableSelect from "./input/SearchableSelect";
 import TextArea from "./input/TextArea";
-import { DropdownProps, FormData } from "@/utils/utils";
+import StarRating from "./input/StarRating";
+import { DropdownProps, FormData, ReviewPayload, SelectOption, capitalizeFirstLetter } from "@/utils/utils";
+import Spinner from "./spinner/Spinner";
 
 const ReviewMovie = ({ onClose }: DropdownProps) => {
   const modalOverlayRef = useRef<HTMLDivElement>(null);
-  const [visibility, setVisibility] = useState<"Public" | "Private" | null>(
-    "Private"
-  );
+  
+  // Fetch the list of movies for the dropdown
+  const { data: movieOptions, isLoading: isMoviesLoading, error: moviesError } = usePopularHorrorMovies();
 
-  // Apply useOnClickOutside to the outer modal overlay
-  useOnClickOutside(modalOverlayRef, onClose);
-
-  // Data will come from BE
-  const options = [
-    { value: "option1", label: "Option 1" },
-    { value: "option2", label: "Option 2" },
-    { value: "option3", label: "Option 3" },
-  ];
-
-  const handleChange = (value: string) => {
-    console.log("Selected value:", value);
-  };
-
+  // Initialize the form with react-hook-form
   const {
     control,
+    handleSubmit,
+    reset,
+    watch, // <--- 1. Import watch to monitor form values
     formState: { errors },
   } = useForm<FormData>({
     mode: "all",
     defaultValues: {
-      platform: "",
-      watchDate: "",
-      description: "",
+      filmId: "", // Default for the movie ID
+      streamingPlatform: "",
+      reviewText: "",
+      rating: 0,
     },
   });
 
-  const handleToggle = (option: "Public" | "Private") => {
-    setVisibility(option);
+  // 2. Watch the value of the 'filmId' field
+  const selectedFilmId = watch("filmId");
+
+  // 3. Find the selected movie title
+  const selectedMovie = movieOptions?.find(opt => opt.value === selectedFilmId);
+  
+  // Construct the dynamic title
+  const modalTitle = selectedMovie 
+    ? `Review ${selectedMovie.label}` 
+    : "Review a Movie";
+  
+  // Mutation hook for submitting the review
+  const reviewMutation = useReviewMovieMutation(() => {
+    onClose(); // Close the modal on successful submission
+    reset(); // Reset the form fields
+  });
+
+  // Apply useOnClickOutside to the outer modal overlay
+  useOnClickOutside(modalOverlayRef, onClose);
+  
+  // Handle form submission
+  const onSubmit: SubmitHandler<FormData> = (data) => {
+    const payload: ReviewPayload = {
+        filmId: data.filmId,
+        rating: data.rating,
+        reviewText: data.reviewText,
+        streamingPlatform: data.streamingPlatform,
+    };
+    reviewMutation.mutate(payload);
   };
 
   return (
     <div
       ref={modalOverlayRef}
-      className="fixed inset-0 flex items-center justify-center bg-transparent bg-opacity-50 z-[600] p-4" // Centering with flexbox
+      className="fixed inset-0 flex items-center justify-center bg-transparent bg-opacity-50 z-[600] p-4"
     >
       <div className="w-[700px] max-w-[calc(100vw-24px)] bg-white rounded-[12px] p-6 sm:p-6 p-4 animate-fadeIn shadow-[0px_8px_8px_-4px_#1018280A] shadow-[0px_20px_24px_-4px_#1018281A]">
         <div className="flex justify-end">
@@ -63,129 +84,114 @@ const ReviewMovie = ({ onClose }: DropdownProps) => {
         </div>
         <div className="flex flex-col gap-4">
           <h1 className="text-[#121212] text-[24px] sm:text-[24px] text-[20px] font-opensans font-semibold">
-            Create a watch party
+            {capitalizeFirstLetter(modalTitle)} {/* <--- Dynamic Title Used Here */}
           </h1>
-          <div className="flex items-center gap-4 bg-[#E2E8F0] rounded-[31px] w-fit p-[4px] mx-auto sm:mx-0">
-            <button
-              onClick={() => handleToggle("Public")}
-              className={`px-4 py-2 text-sm font-opensans font-semibold rounded-[28px] ${
-                visibility === "Public"
-                  ? "bg-white text-[#121212] cursor-pointer"
-                  : "bg-[#E2E8F0] text-gray-500 cursor-pointer"
-              }`}
-            >
-              Public
-            </button>
-            <button
-              onClick={() => handleToggle("Private")}
-              className={`px-4 py-2 text-sm font-opensans font-semibold rounded-[28px] ${
-                visibility === "Private"
-                  ? "bg-white text-[#121212]"
-                  : "bg-[#E2E8F0] text-gray-500"
-              }`}
-            >
-              Private
-            </button>
-          </div>
 
-          {visibility && (
-            <form>
-              <SearchableSelect
-                id="select-movie"
-                options={options}
-                onChange={handleChange}
-                placeholder="Trick 'n' Treat"
-                label="Select a movie"
-                customClass="mb-4"
+            <form onSubmit={handleSubmit(onSubmit)}>
+              {/* --- Select Movie Dropdown --- */}
+              <Controller
+                name="filmId" // Field name must match FormData
+                control={control}
+                rules={{ required: "Please select a movie" }}
+                render={({ field: { onChange, value } }) => (
+                  <SearchableSelect
+                    id="select-movie"
+                    // Show a loading message or options
+                    options={movieOptions || []} 
+                    onChange={onChange}
+                    placeholder={
+                      isMoviesLoading 
+                        ? "Loading movies..." 
+                        : moviesError 
+                        ? "Error loading movies" 
+                        : "Select a movie to review"
+                    }
+                    label="Select a movie"
+                    customClass="mb-4"
+                    disabled={isMoviesLoading || !!moviesError}
+                    // Value ensures the correct option object is passed back to the Select
+                    value={movieOptions?.find(opt => opt.value === value) as SelectOption | undefined}
+                  />
+                )}
               />
+              {errors.filmId && (
+                  <p className="text-red-500 text-sm mb-4 mt-[-10px]">
+                    {errors.filmId.message}
+                  </p>
+              )}
 
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Controller
-                  name="watchDate"
-                  control={control}
-                  rules={{ required: "Watch date is required" }}
-                  render={({ field: { value, onChange, onBlur } }) => (
-                    <Input
-                      type="date"
-                      label="Date to watch"
-                      id="watchDate"
-                      name="watchDate"
-                      value={value}
-                      onChange={onChange}
-                      onBlur={onBlur}
-                      error={`${!!errors.watchDate?.message}`}
-                      errorMessage={errors.watchDate?.message}
-                      placeholder="eg netflix"
-                      customClass="!py-[18px] !pl-5 !bg-[#F8F8FF] rounded-[16px] w-full border border-gray-300 !h-[56px]"
-                    />
-                  )}
-                />
-                <SearchableSelect
-                  id="select-time"
-                  options={options}
-                  onChange={handleChange}
-                  placeholder="6pm"
-                  label="Time"
-                  customClass="mb-4 sm:mb-0"
-                />
-                <SearchableSelect
-                  id="select-timezone"
-                  options={options}
-                  onChange={handleChange}
-                  placeholder="WAT"
-                  label="Timezone"
-                  customClass="mb-4 sm:mb-0"
-                />
-              </div>
 
+              {/* --- Review Text Area --- */}
               <Controller
                 render={({ field: { onChange, value } }) => (
                   <TextArea
                     id="textArea"
-                    label="Description"
+                    label="Add review"
                     value={value || ""}
-                    name="description"
-                    onChange={(value) => {
-                      onChange(value);
-                    }}
-                    placeholder="add brief description"
+                    name="reviewText"
+                    onChange={onChange}
+                    placeholder="add brief reviewText"
                   />
                 )}
-                name="description"
+                name="reviewText"
                 control={control}
+                rules={{ required: "Review text is required" }}
               />
+              {errors.reviewText && (
+                <p className="text-red-500 text-sm mb-4 mt-[-10px]">
+                  {errors.reviewText.message}
+                </p>
+              )}
+
+
+              {/* --- Streaming Platform Input --- */}
               <Controller
-                name="platform"
+                name="streamingPlatform"
                 control={control}
                 rules={{ required: "Platform is required" }}
                 render={({ field: { value, onChange, onBlur } }) => (
                   <Input
                     type="text"
                     label="Streaming platform(s)"
-                    id="platform"
-                    name="platform"
+                    id="streamingPlatform"
+                    name="streamingPlatform"
                     value={value}
                     onChange={onChange}
                     onBlur={onBlur}
-                    error={`${!!errors.platform?.message}`}
-                    errorMessage={errors.platform?.message}
+                    error={`${!!errors.streamingPlatform?.message}`}
+                    errorMessage={errors.streamingPlatform?.message}
                     placeholder="eg netflix"
                     customClass="!py-[18px] !pl-5 !bg-[#F8F8FF] rounded-[16px] w-full border border-gray-300 !h-[56px]"
                   />
                 )}
               />
-              <SearchableSelect
-                id="select-members"
-                options={options}
-                onChange={handleChange}
-                placeholder="Tope"
-                label="Members"
-                customClass="mb-4"
+
+              {/* --- Star Rating Field --- */}
+              <Controller
+                name="rating"
+                control={control}
+                rules={{ required: "Please provide a rating", min: { value: 1, message: "Rating must be at least 1 star" } }}
+                render={({ field: { value, onChange, name } }) => (
+                  <StarRating
+                    label="Rate movie"
+                    name={name}
+                    value={value as number}
+                    onChange={onChange} 
+                    customClass="mb-4"
+                  />
+                )}
               />
+               {errors.rating && (
+                <p className="text-red-500 text-sm mb-4 mt-[-10px]">
+                  {errors.rating.message}
+                </p>
+              )}
+
               <Button
                 type="submit"
-                label="Save"
-                customClass="gradient-button !text-white text-base font-opensans font-semibold !py-4 !px-[14px] !w-full !rounded-[24px] !h-[56px]"
+                label={reviewMutation.isPending ? <Spinner size="small" /> : "Save"}
+                customClass="gradient-button !text-white text-base font-opensans font-semibold !py-4 !px-[14px] !w-full !rounded-[24px] !h-[56px] mt-4"
+                disabled={reviewMutation.isPending}
               />
               <div className="mt-6 cursor-pointer flex justify-center">
                 <span
@@ -196,7 +202,6 @@ const ReviewMovie = ({ onClose }: DropdownProps) => {
                 </span>
               </div>
             </form>
-          )}
         </div>
       </div>
     </div>

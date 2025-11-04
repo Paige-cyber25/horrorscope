@@ -27,10 +27,36 @@ export interface ListItemProps {
   };
 }
 
+export interface SelectOption {
+  value: string; // The ID
+  label: string; // The Title
+}
+
+export interface Movie {
+  id: string;
+  title: string;
+}
+
+// The complete form data structure
 export interface FormData {
-  platform: string;
-  watchDate: string;
-  description: string;
+  filmId: string; // This holds the movie ID selected from SearchableSelect
+  rating: number; 
+  reviewText: string;
+  streamingPlatform: string;
+}
+
+export interface CreatePartyFormData {
+   platform: string;
+   watchDate: string;
+   description: string;
+}
+
+// The payload sent to the /reviews API
+export interface ReviewPayload {
+  filmId: string;
+  rating: number;
+  reviewText: string;
+  streamingPlatform: string;
 }
 
 // Define the type for a movie object for type safety
@@ -111,7 +137,7 @@ export type SignupData = {
   updatedAt: string;
 };
 
-export type ErrorResponse = {
+export interface ErrorResponse {
   message: string;
 };
 
@@ -119,4 +145,10 @@ export const capitalizeFirstLetter = (str: string) => {
   if (!str) return "";
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
+
+export interface Option { 
+  value: string;
+  label: string;
+  metaData?: unknown;
+}
 

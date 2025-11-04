@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import ReviewMovie from '../components/ReviewMovie';
+import ReviewMovie from '../components/CreateWatchParty';
 import WatchPartyList from '../components/WatchPartyList';
 
 // Sample watch party data

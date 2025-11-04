@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@iconify/react";
 import Dropdown from "./Dropdown";
-import ReviewMovie from "../ReviewMovie";
+import ReviewMovie from "../CreateWatchParty";
 import { useUser } from "@/hooks/useUser";
 import { capitalizeFirstLetter } from "@/utils/utils";
 

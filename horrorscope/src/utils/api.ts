@@ -16,7 +16,7 @@ export const api = axios.create({
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
-    const token = user?.token || user?.customer?.token;
+    const token = user?.accessToken;
     if (token) {
       config.headers.set("Authorization", `Bearer ${token}`);
     }

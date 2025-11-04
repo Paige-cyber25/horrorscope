@@ -30,7 +30,7 @@ const Page: React.FC = () => {
   const [confirmPasswordType, setConfirmPasswordType] = useState<
     "text" | "password"
   >("password");
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [searchTerm] = useState<string>("");
   const signupMutation = useSignupMutation();
 
   const {

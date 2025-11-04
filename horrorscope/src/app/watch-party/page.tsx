@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import ReviewMovie from "../components/ReviewMovie";
+import ReviewMovie from "../components/CreateWatchParty";
 import AllWatchParty from "./AllWatchParty";
 import MyWatchParty from "./MyWatchParty";
 

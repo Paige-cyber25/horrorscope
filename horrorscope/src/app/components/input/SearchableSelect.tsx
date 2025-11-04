@@ -15,6 +15,7 @@ interface SearchableSelectProps {
   error?: "true" | "false";
   errorMessage?: string;
   disabled?: boolean;
+  value?: Option | null;
 }
 const SearchableSelect: React.FC<SearchableSelectProps> = ({
   id,
@@ -27,10 +28,10 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   error,
   errorMessage,
   disabled = false,
+  value
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedOption, setSelectedOption] = useState<Option | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -46,12 +47,11 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  const filteredOptions = options?.filter((option) =>
+ const filteredOptions = options?.filter((option) =>
     option?.label?.toLowerCase().includes(searchTerm?.toLowerCase())
   );
   const handleSelect = (option: Option) => {
-    setSelectedOption(option);
-    onChange(option.value);
+    onChange(option.value); 
     setIsOpen(false);
     setSearchTerm("");
   };
@@ -73,7 +73,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
         onClick={() => disabled ? null : setIsOpen(!isOpen)}
       >
         <span className="text-[#121212]">
-          {selectedOption ? selectedOption.label : placeholder}
+          {value ? value.label : placeholder} 
         </span>
         <svg
           className={`w-5 h-5 text-[#111827] transform transition-transform duration-200 ${

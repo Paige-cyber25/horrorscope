@@ -4,10 +4,10 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
 import MovieList from "../components/MovieList";
-import ReviewMovie from "../components/ReviewMovie";
 import WatchPartyList from "../components/WatchPartyList";
 import { capitalizeFirstLetter, formatNumber } from "@/utils/utils";
 import { useUser } from "@/hooks/useUser";
+import ReviewMovie from "../components/ReviewMovie";
 
 // Sample movie data
 const recommendedMovies = [
@@ -223,7 +223,7 @@ const Page = () => {
     setShowReviewMovieModal(true);
   };
 
-  const avatarSrc = user?.displayPictureUrl || "/images/default-avatar.png";
+  // const avatarSrc = user?.displayPictureUrl || "/images/default-avatar.png";
 
   return (
     <section className="header h-full w-full">
