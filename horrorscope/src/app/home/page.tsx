@@ -8,42 +8,9 @@ import WatchPartyList from "../components/WatchPartyList";
 import { capitalizeFirstLetter, formatNumber } from "@/utils/utils";
 import { useUser } from "@/hooks/useUser";
 import ReviewMovie from "../components/ReviewMovie";
+import { useRecommendedMovies } from "@/hooks/useRecommendedMovies";
+import ShimmerListItem from "../components/ShimmerListItem";
 
-// Sample movie data
-const recommendedMovies = [
-  {
-    id: "1",
-    imageSrc: "/images/bagman.png",
-    title: "Bagman (2024)",
-    reviews: 120,
-    likes: 1500,
-    comments: 2300,
-  },
-  {
-    id: "2",
-    imageSrc: "/images/halloween.png",
-    title: "The Halloween (2022)",
-    reviews: 85,
-    likes: 1000000,
-    comments: 500,
-  },
-  {
-    id: "3",
-    imageSrc: "/images/trick-r-treat.png",
-    title: "Trick 'r Treat (2024)",
-    reviews: 200,
-    likes: 25000,
-    comments: 1500000,
-  },
-  {
-    id: "4",
-    imageSrc: "/images/omen.png",
-    title: "The First Omen (2025)",
-    reviews: 150,
-    likes: 999,
-    comments: 100,
-  },
-];
 
 const trendingMovies = [
   {
@@ -207,6 +174,7 @@ const Page = () => {
   const [showReviewMovieModal, setShowReviewMovieModal] = useState(false);
   const reviewButtonRef = useRef<HTMLButtonElement>(null);
   const imageContainerRef = useRef<HTMLDivElement>(null);
+  const { data: recommendedMovies, isLoading, isError } = useRecommendedMovies();
 
   useEffect(() => {
     if (showReviewMovieModal) {
@@ -274,7 +242,27 @@ const Page = () => {
         <h1 className="text-[18px] sm:text-[20px] md:text-[24px] font-opensans font-bold text-[#F8F8FF] mb-2">
           Recommended for you
         </h1>
-        <MovieList movies={recommendedMovies} />
+       {isLoading ? (
+          // Display Shimmer while loading, adapting to the MovieList grid layout
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+            <ShimmerListItem />
+            <ShimmerListItem />
+            <ShimmerListItem />
+            <ShimmerListItem />
+          </div>
+        ) : isError ? (
+          <p className="text-red-500">
+            Failed to load recommended movies. Please try again.
+          </p>
+        ) : recommendedMovies && recommendedMovies.length > 0 ? (
+          // Data is ready: Pass the transformed array to MovieList
+          <MovieList movies={recommendedMovies} />
+        ) : (
+          // Empty state
+          <p className="text-gray-400">
+            No recommended movies found at this time.
+          </p>
+        )}
       </div>
 
       <div className="mt-12 sm:mt-[70px] px-4 sm:px-[56px]">

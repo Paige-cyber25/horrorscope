@@ -59,7 +59,7 @@ const ListItem = ({ list }: { list: ListData }) => {
       {/* --- Film Images Display --- */}
       <div className="flex overflow-x-auto sm:overflow-x-visible">
         {/* Only maps the available films (1 to 4) and stops */}
-        {filmsToDisplay.map((film, index) => (
+        {filmsToDisplay.map((film) => (
           <div
             key={film.id}
             className="relative w-[120px] sm:w-[150px] h-[120px] sm:h-[150px] flex-shrink-0 mr-2 rounded-lg overflow-hidden" 

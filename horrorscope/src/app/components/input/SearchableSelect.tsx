@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
-export interface Option {
+
+import React, { useState, useRef, useEffect, ReactNode } from "react";
+export interface SelectOption { 
   value: string;
   label: string;
   metaData?: unknown;
@@ -7,7 +8,7 @@ export interface Option {
 interface SearchableSelectProps {
   id: string;
   label?: string;
-  options: Option[];
+  options: SelectOption[];
   onChange: (value: string) => void;
   placeholder?: string;
   required?: boolean;
@@ -15,7 +16,8 @@ interface SearchableSelectProps {
   error?: "true" | "false";
   errorMessage?: string;
   disabled?: boolean;
-  value?: Option | null;
+  value?: SelectOption | null;
+  loadingIndicator?: ReactNode; 
 }
 const SearchableSelect: React.FC<SearchableSelectProps> = ({
   id,
@@ -28,7 +30,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   error,
   errorMessage,
   disabled = false,
-  value
+  value,
+  loadingIndicator // 🎯 Destructure new prop
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,11 +53,19 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
  const filteredOptions = options?.filter((option) =>
     option?.label?.toLowerCase().includes(searchTerm?.toLowerCase())
   );
-  const handleSelect = (option: Option) => {
+  const handleSelect = (option: SelectOption) => {
     onChange(option.value); 
     setIsOpen(false);
     setSearchTerm("");
   };
+  
+  const displayContent = () => {
+    if (disabled && loadingIndicator) {
+        return loadingIndicator; // 🎯 Display spinner when disabled AND loading indicator is provided
+    }
+    return value ? value.label : placeholder;
+  };
+  
   return (
     <div ref={wrapperRef} className={`w-full relative ${customClass}`}>
       {label && (
@@ -73,7 +84,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
         onClick={() => disabled ? null : setIsOpen(!isOpen)}
       >
         <span className="text-[#121212]">
-          {value ? value.label : placeholder} 
+          {displayContent()} {/* 🎯 Use the helper function */}
         </span>
         <svg
           className={`w-5 h-5 text-[#111827] transform transition-transform duration-200 ${

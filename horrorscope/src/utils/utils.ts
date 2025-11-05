@@ -204,3 +204,35 @@ export interface MyListData {
   films: ListFilm[];
 }
 
+export interface ApiMovie {
+  id: string;
+  title: string;
+  posterUrl: string; // Used for image
+  releaseDate: string; // Used to get the year
+  averageRating: string; // Used for the "reviews" display in your card
+  ratingCount: number; // The number of people who rated it (can be used for 'reviews' or combined with reviewCount)
+  likedCount: number; // Used for 'likes'
+  reviewCount: number; // The actual number of written reviews (can be used for 'comments')
+  // ... other fields (overview, backdropUrl, etc.)
+}
+
+// components/types.ts (or use the Movie interface you provided)
+export interface ComponentMovie {
+  id: string;
+  imageSrc: string;
+  title: string;
+  reviews: number; // Mapped from averageRating or ratingCount/reviewCount
+  likes: number;
+  comments: number;
+}
+
+export interface MovieApiResponse {
+  success: boolean;
+  message: string;
+  data: {
+    movies: ApiMovie[];
+    total: number;
+    totalPages: number;
+  };
+}
+

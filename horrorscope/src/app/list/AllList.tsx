@@ -6,8 +6,6 @@ import ListItem from "../components/ListItem";
 import ShimmerListItem from "../components/ShimmerListItem"; // <--- Import Shimmer
 import { usePublicLists } from "@/hooks/useAllListHooks";
 
-// Define how many shimmer elements to show
-const SHIMMER_COUNT = 4; // 2 in the first row, 2 in the second
 
 const AllList = () => {
   const { data: lists, isLoading, isError } = usePublicLists();

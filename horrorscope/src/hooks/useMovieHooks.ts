@@ -4,19 +4,9 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import type { AxiosError } from "axios";
 import { api } from "@/utils/api"; // Assuming your API instance is here
-import { Movie, ReviewPayload, ErrorResponse, SelectOption } from "@/utils/utils"; 
+import {  ReviewPayload, ErrorResponse, SelectOption, MovieApiResponse } from "@/utils/utils"; 
 // Assuming you have defined Movie, ReviewPayload, and SelectOption types
 
-// --- 1. Fetch Movies Hook ---
-interface MovieApiResponse {
-  success: boolean;
-  message: string;
-  data: {
-    movies: Movie[];
-    total: number;
-    totalPages: number;
-  };
-}
 
 // Custom hook to fetch the popular horror movies
 export const usePopularHorrorMovies = () => {

@@ -9,6 +9,7 @@ import MovieList from "@/app/components/MovieList";
 import React from "react";  
 import { useMyLists } from "@/hooks/useMyLists";
 import ShimmerListItem from "@/app/components/ShimmerListItem";
+import { useUser } from "@/hooks/useUser";
 
 // --- TYPE DEFINITIONS ---
 interface FilmProps {
@@ -22,9 +23,8 @@ interface FilmProps {
 
 
 const Page = () => {
-    
-    const { data: allUserLists, isLoading, isError, error } = useMyLists();
-    
+  const user = useUser();
+   const { data: allUserLists, isLoading, isError, error } = useMyLists();
    const currentList = allUserLists && allUserLists.length > 0 ? allUserLists[0] : undefined;
 
     if (isLoading) {
@@ -106,7 +106,7 @@ const Page = () => {
             className="rounded-full w-[16px] h-[16px] sm:w-6 sm:h-6"
           />
           <span className="uppercase text-gray-200 text-[10px] sm:text-[12px] font-bevietnampro font-medium">
-            jonathan fujii {/* Hardcoded name */}
+            {capitalizeFirstLetter(user?.userName ?? 'User')}
           </span>
           <div className="text-[#D1D5DB] flex items-center">
             <Icon icon="ph:dot" className="text-2xl sm:text-3xl" />

@@ -156,12 +156,11 @@ const CreateNewList = ({ onClose }: CreateNewListDropdownProps) => {
                     id="select-movie"
                     options={movieOptions || []} 
                     onChange={onChange}
+                    loadingIndicator={isMoviesLoading ? <Spinner size="small" /> : undefined}
                     placeholder={
-                      isMoviesLoading 
-                        ? "Loading movies..." 
-                        : moviesError 
-                        ? "Error loading movies" 
-                        : "Select a movie to review"
+                      moviesError
+                            ? "Error loading movies"
+                            : "Select a movie to review"
                     }
                     label="Select a movie"
                     customClass="mb-4"
