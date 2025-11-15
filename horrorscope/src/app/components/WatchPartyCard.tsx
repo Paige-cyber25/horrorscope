@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import { capitalizeFirstLetter } from "@/utils/utils";
 
 interface WatchPartyCardProps {
   id: string;
@@ -61,7 +62,7 @@ const WatchPartyCard = ({
         )}
       </div>
       <p className="text-[12px] sm:text-[14px] font-opensans font-semibold text-gray-200">
-        Hosted by {host}
+        Hosted by { capitalizeFirstLetter(host)}
       </p>
     </div>
   );

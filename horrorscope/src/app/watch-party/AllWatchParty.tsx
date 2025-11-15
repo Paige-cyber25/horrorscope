@@ -1,62 +1,65 @@
+
 import React from "react";
 import WatchPartyList from "../components/WatchPartyList";
-
-// Sample watch party data
-const trendingWatchParties = [
-  {
-    id: "wp1",
-    imageSrc: "/images/bagman.png",
-    title: "Bagman Watch Party",
-    time: "9pm WAT",
-    date: "23-09-2025",
-    participants: [
-      "John Doe",
-      "Jane Smith",
-      "Alex Brown",
-      "Mike Wilson",
-      "Sara Lee",
-    ],
-    host: "Toba109",
-  },
-  {
-    id: "wp2",
-    imageSrc: "/images/halloween.png",
-    title: "Halloween Watch Party",
-    time: "7pm WAT",
-    date: "25-09-2025",
-    participants: ["Emma Taylor", "Liam Johnson"],
-    host: "HorrorHost",
-  },
-  {
-    id: "wp3",
-    imageSrc: "/images/trick-r-treat.png",
-    title: "Trick 'r Treat Watch Party",
-    time: "6pm WAT",
-    date: "24-09-2025",
-    participants: ["Olivia Davis", "Noah Miller"],
-    host: "TreatMaster",
-  },
-  {
-    id: "wp4",
-    imageSrc: "/images/omen.png",
-    title: "Omen Watch Party",
-    time: "8pm WAT",
-    date: "26-09-2025",
-    participants: ["Sophia Wilson", "Ethan Anderson"],
-    host: "OmenMaster",
-  },
-];
+import ShimmerWatchPartyList from "../components/ShimmerWatchPartyList";
+import { WatchParty } from "@/utils/utils";
+import { useUpcomingWatchParties } from "@/hooks/useAllWatchParties";
 
 const AllWatchParty = () => {
+  const {
+    data: upcomingWatchParties,
+    isLoading,
+    isError,
+    error,
+  } = useUpcomingWatchParties();
+
+  const title = (
+    <h1 className="text-[#F8F8FF] text-[18px] sm:text-[24px] font-opensans font-bold">
+      Popular watch this week
+    </h1>
+  );
+
+  // --- Loading State ---
+  if (isLoading) {
+    return (
+      <div className="mt-6">
+        {title}
+        <div className="mt-4 pb-[50px] sm:pb-[116px]">
+          <div className="flex flex-col gap-6">
+            {/* Display enough shimmers to fill a few rows, e.g., 8 items */}
+            <ShimmerWatchPartyList count={8} /> 
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // --- Error State ---
+  if (isError) {
+    return (
+      <div className="mt-6">
+        {title}
+        <div className="mt-4 pb-[50px] sm:pb-[116px] text-red-400">
+          Error fetching watch parties: {error.message}
+        </div>
+      </div>
+    );
+  }
+
+  // --- Data State ---
+  const parties: WatchParty[] = upcomingWatchParties || [];
+
   return (
     <div className="mt-6">
-      <h1 className="text-[#F8F8FF] text-[18px] sm:text-[24px] font-opensans font-bold">
-        Popular watch this week
-      </h1>
+      {title}
       <div className="mt-4 pb-[50px] sm:pb-[116px]">
         <div className="flex flex-col gap-6">
-          <WatchPartyList parties={trendingWatchParties} />
-          <WatchPartyList parties={trendingWatchParties} />
+          {parties.length === 0 ? (
+            <p className="text-white">No upcoming watch parties found.</p>
+          ) : (
+            // Pass the entire array to a single WatchPartyList
+            <WatchPartyList parties={parties} />
+          )}
         </div>
       </div>
     </div>

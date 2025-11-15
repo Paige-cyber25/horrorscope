@@ -1,6 +1,7 @@
+
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Controller, useForm } from "react-hook-form";
 import useOnClickOutside from "@/hooks/useOnClickOutside";
@@ -8,48 +9,80 @@ import Button from "./button/Button";
 import Input from "./input/Input";
 import SearchableSelect from "./input/SearchableSelect";
 import TextArea from "./input/TextArea";
-import { DropdownProps, CreatePartyFormData } from "@/utils/utils";
+import { DropdownProps, CreatePartyFormData, SelectOption, generateTimeOptions, findOptionByValue, WatchPartyPayload } from "@/utils/utils";
+import { usePopularHorrorMovies } from "@/hooks/useMovieHooks"; 
+import { useAllUsers, useCreateWatchParty } from "@/hooks/useUserHooks";
+import Spinner from "./spinner/Spinner";
 
+// Define the component
 const CreateWatchParty = ({ onClose }: DropdownProps) => {
   const modalOverlayRef = useRef<HTMLDivElement>(null);
   const [visibility, setVisibility] = useState<"Public" | "Private" | null>(
     "Private"
   );
+  
+  // --- Data Fetching ---
+  const { data: movieOptions, isLoading: isMoviesLoading, error: moviesError } = usePopularHorrorMovies();
+  const { data: userOptions, isLoading: isUsersLoading, error: usersError } = useAllUsers();
+  
+  // Generate time options once
+  const timeOptions = useMemo(() => generateTimeOptions(), []);
 
-  // Apply useOnClickOutside to the outer modal overlay
-  useOnClickOutside(modalOverlayRef, onClose);
-
-  // Data will come from BE
-  const options = [
-    { value: "option1", label: "Option 1" },
-    { value: "option2", label: "Option 2" },
-    { value: "option3", label: "Option 3" },
-  ];
-
-  const handleChange = (value: string) => {
-    console.log("Selected value:", value);
-  };
-
+  // --- Form Setup ---
   const {
     control,
+    handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<CreatePartyFormData>({
     mode: "all",
     defaultValues: {
-      platform: "",
-      watchDate: "",
+      streamingPlatform: "",
+      scheduledAt: "",
       description: "",
+      filmId: "",
+      time: "",
+      participants: [], // Initialize the participants array
     },
   });
+  
+  // Watch the selected time and participants for display/submission logic
+  const watchTime = watch("time");
+
+  // --- Mutation Setup ---
+  const { mutate: createParty, isPending: isCreatingParty } = useCreateWatchParty(onClose);
+
+  // --- Handlers ---
+  useOnClickOutside(modalOverlayRef, onClose);
 
   const handleToggle = (option: "Public" | "Private") => {
     setVisibility(option);
   };
+  
+  const onSubmit = (data: CreatePartyFormData) => {
+    if (!visibility) return;
+
+    // 1. Prepare the payload for the API
+    const payload: WatchPartyPayload = {
+      filmId: data.filmId,
+      description: data.description,
+      scheduledAt: data.scheduledAt, // Should be YYYY-MM-DD
+      time: findOptionByValue(timeOptions, data.time)?.label || "", // Get display label like "8:00 PM"
+      streamingPlatform: data.streamingPlatform,
+      isPrivate: visibility === "Private",
+      // Extract only the IDs (values) from the SelectOption[] array
+      participants: data.participants.map(opt => opt.value),
+    };
+
+    // 2. Call the mutation
+    createParty(payload);
+  };
+
 
   return (
     <div
       ref={modalOverlayRef}
-      className="fixed inset-0 flex items-center justify-center bg-transparent bg-opacity-50 z-[600] p-4" // Centering with flexbox
+      className="fixed inset-0 flex items-center justify-center bg-transparent bg-opacity-50 z-[600] p-4"
     >
       <div className="w-[700px] max-w-[calc(100vw-24px)] bg-white rounded-[12px] p-6 sm:p-6 p-4 animate-fadeIn shadow-[0px_8px_8px_-4px_#1018280A] shadow-[0px_20px_24px_-4px_#1018281A]">
         <div className="flex justify-end">
@@ -89,53 +122,77 @@ const CreateWatchParty = ({ onClose }: DropdownProps) => {
           </div>
 
           {visibility && (
-            <form>
-              <SearchableSelect
-                id="select-movie"
-                options={options}
-                onChange={handleChange}
-                placeholder="Trick 'n' Treat"
-                label="Select a movie"
-                customClass="mb-4"
+            <form onSubmit={handleSubmit(onSubmit)}>
+               {/* Select Film */}
+            <Controller
+                name="filmId"
+                control={control}
+                rules={{ required: "Please select a movie" }}
+                render={({ field: { onChange, value } }) => (
+                  <SearchableSelect
+                    id="select-movie"
+                    options={movieOptions || []} 
+                    onChange={onChange}
+                    loadingIndicator={isMoviesLoading ? <Spinner size="small" /> : undefined}
+                    placeholder={
+                      moviesError
+                            ? "Error loading movies"
+                            : "Select a movie to review"
+                    }
+                    label="Select a movie"
+                    customClass="mb-4"
+                    disabled={isMoviesLoading || !!moviesError || isCreatingParty }
+                    value={movieOptions?.find(opt => opt.value === value) as SelectOption | undefined}
+                  />
+                )}
               />
-
+              {errors.filmId && (
+                  <p className="text-red-500 text-sm mb-4 mt-[-10px]">
+                    {errors.filmId.message}
+                  </p>
+              )}
               <div className="flex flex-col sm:flex-row gap-4">
                 <Controller
-                  name="watchDate"
+                  name="scheduledAt"
                   control={control}
                   rules={{ required: "Watch date is required" }}
                   render={({ field: { value, onChange, onBlur } }) => (
                     <Input
                       type="date"
                       label="Date to watch"
-                      id="watchDate"
-                      name="watchDate"
+                      id="scheduledAt"
+                      name="scheduledAt"
                       value={value}
                       onChange={onChange}
                       onBlur={onBlur}
-                      error={`${!!errors.watchDate?.message}`}
-                      errorMessage={errors.watchDate?.message}
-                      placeholder="eg netflix"
+                      error={`${!!errors.scheduledAt?.message}`}
+                      errorMessage={errors.scheduledAt?.message}
+                      placeholder="eg 2025-12-25"
                       customClass="!py-[18px] !pl-5 !bg-[#F8F8FF] rounded-[16px] w-full border border-gray-300 !h-[56px]"
                     />
                   )}
                 />
-                <SearchableSelect
-                  id="select-time"
-                  options={options}
-                  onChange={handleChange}
-                  placeholder="6pm"
-                  label="Time"
-                  customClass="mb-4 sm:mb-0"
+                <Controller
+                  name="time"
+                  control={control}
+                  rules={{ required: "Watch time is required" }}
+                  render={({ field: { onChange } }) => (
+                    <SearchableSelect
+                      id="select-time"
+                      options={timeOptions}
+                      onChange={onChange}
+                      placeholder="Select time"
+                      label="Time"
+                      customClass="mb-4 sm:mb-0"
+                      value={findOptionByValue(timeOptions, watchTime)}
+                    />
+                  )}
                 />
-                <SearchableSelect
-                  id="select-timezone"
-                  options={options}
-                  onChange={handleChange}
-                  placeholder="WAT"
-                  label="Timezone"
-                  customClass="mb-4 sm:mb-0"
-                />
+                {errors.time && (
+                  <p className="text-red-500 text-sm mb-4 mt-[-10px]">
+                    {errors.time.message}
+                  </p>
+              )}
               </div>
 
               <Controller
@@ -155,37 +212,63 @@ const CreateWatchParty = ({ onClose }: DropdownProps) => {
                 control={control}
               />
               <Controller
-                name="platform"
+                name="streamingPlatform"
                 control={control}
-                rules={{ required: "Platform is required" }}
+                rules={{ required: "Streaming platform is required" }}
                 render={({ field: { value, onChange, onBlur } }) => (
                   <Input
                     type="text"
                     label="Streaming platform(s)"
-                    id="platform"
-                    name="platform"
+                    id="streamingPlatform"
+                    name="streamingPlatform"
                     value={value}
                     onChange={onChange}
                     onBlur={onBlur}
-                    error={`${!!errors.platform?.message}`}
-                    errorMessage={errors.platform?.message}
+                    error={`${!!errors.streamingPlatform?.message}`}
+                    errorMessage={errors.streamingPlatform?.message}
                     placeholder="eg netflix"
                     customClass="!py-[18px] !pl-5 !bg-[#F8F8FF] rounded-[16px] w-full border border-gray-300 !h-[56px]"
                   />
                 )}
               />
-              <SearchableSelect
-                id="select-members"
-                options={options}
-                onChange={handleChange}
-                placeholder="Tope"
-                label="Members"
-                customClass="mb-4"
-              />
+               {/* Select Members (Participants) */}
+               {visibility === "Private" && (
+                <Controller
+                    name="participants"
+                    control={control}
+                    rules={{ required: "Select at least one participant for a private party" }}
+                    render={({ field: { onChange, value } }) => (
+                      <SearchableSelect
+                        id="select-members"
+                        options={userOptions || []}
+                        onChange={onChange}
+                        placeholder={
+                            usersError
+                              ? "Error loading users"
+                              : "Select participants (usernames)"
+                          }
+                        label="Members"
+                        customClass="mb-4"
+                        isMulti={true} // Enable multi-select
+                        disabled={isUsersLoading || !!usersError || isCreatingParty}
+                        loadingIndicator={isUsersLoading ? <Spinner size="small" /> : undefined}
+                        value={value}
+                      />
+                    )}
+                  />
+               )}
+              
+              {errors.participants && visibility === "Private" && (
+                  <p className="text-red-500 text-sm mb-4 mt-[-10px]">
+                    {errors.participants.message}
+                  </p>
+              )}
+              
               <Button
                 type="submit"
-                label="Save"
+                label={isCreatingParty ?  <Spinner size="small" /> : "Save"}
                 customClass="gradient-button !text-white text-base font-opensans font-semibold !py-4 !px-[14px] !w-full !rounded-[24px] !h-[56px]"
+                disabled={isCreatingParty || isMoviesLoading || isUsersLoading}
               />
               <div className="mt-6 cursor-pointer flex justify-center">
                 <span

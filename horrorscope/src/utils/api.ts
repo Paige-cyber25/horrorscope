@@ -1,9 +1,9 @@
 import axios from "axios";
 import type { InternalAxiosRequestConfig } from "axios";
+import { refreshToken } from "./utils";
 
 
 export const baseURL = 'https://horroscope-backend.onrender.com';
-console.log(baseURL, 'baseURL');
 
 export const api = axios.create({
   baseURL,
@@ -27,34 +27,33 @@ api.interceptors.request.use(
   }
 );
 
-// To be updated
-const refreshToken = async () => {
-  localStorage.clear();
-  window.location.href = "/";
-};
-
 // Reseponse interceptor for API calls
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
+    // Safety check for error response existence
+    if (!error.response) {
+      return Promise.reject(error);
+    }
+    
     const errStatus = error.response.status;
-    const errMsg: string = error.response.data.message;
-    if (errStatus === 401 && !originalRequest._retry) {
-      if (["Not Authenticated. Bad/Expired Token", "NOT_AUTHENTICATED", "TOKEN_REQUIRED" ].includes(errMsg)) {
-        originalRequest._retry = true;
-        await refreshToken();
-        return api(originalRequest);
-      }
-    }
 
-    if (error.response) {
-      return Promise.reject(error.response.data);
+    // Check for 401 status and trigger logout immediately.
+    // We remove the dependency on checking the specific error message (errMsg).
+    if (errStatus === 401) {
+      console.error("401 Unauthorized detected. Triggering user logout.");
+      
+      // Call the logout function (refreshToken in your setup)
+      await refreshToken(); 
+      
+      // Stop the error from propagating further (e.g., to the useQuery hook)
+      // We reject with a custom error message, or simply stop execution.
+      // Rejecting the promise is the standard way to exit the interceptor on error.
+      return Promise.reject(new Error("Unauthorized access. User logged out."));
     }
-    if (error.request) {
-      return Promise.reject(error.request);
-    }
-
-    return Promise.reject(error.request);
+    
+    // Handle other errors (400, 403, 404, 500, etc.)
+    // If error.response.data exists, reject with it. Otherwise, reject the response object.
+    return Promise.reject(error.response.data || error.response);
   }
 );

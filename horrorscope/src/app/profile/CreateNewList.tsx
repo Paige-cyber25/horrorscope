@@ -98,14 +98,14 @@ const CreateNewList = ({ onClose }: DropdownProps) => {
                 name="description"
                 control={control}
               />
-              <SearchableSelect
+              {/* <SearchableSelect
                 id="select-movie"
                 options={options}
                 onChange={handleChange}
                 placeholder="Trick ‘n’ Treate"
                 label="Add a movie"
                 customClass="mb-4"
-              />
+              /> */}
               <Button
                 type="submit"
                 label="Save"

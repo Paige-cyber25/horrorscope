@@ -8,6 +8,38 @@ export const formatNumber = (num: number): string => {
     return num.toString();
 };
 
+// Helper function to generate time options every 30 minutes
+export const generateTimeOptions = (): SelectOption[] => {
+  const options: SelectOption[] = [];
+  
+  // Iterate through all 24 hours (0 to 23)
+  for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += 30) {
+      // Create a Date object for formatting, using a dummy date
+      const date = new Date(2000, 0, 1, h, m);
+      
+      // Format time as 'H:MM AM/PM' (e.g., 1:30 AM, 12:00 PM, 8:00 PM)
+      // We use narrow hour representation ('numeric') to match "8:00 PM" instead of "08:00 PM"
+      const timeString = date.toLocaleTimeString('en-US', {
+        hour: 'numeric', // Use 'numeric' for 1-12 hour format without leading zero (e.g., 8 instead of 08)
+        minute: '2-digit',
+        hour12: true
+      });
+      
+      // Use the 12-hour formatted string for both label and value
+      options.push({ value: timeString, label: timeString });
+    }
+  }
+  
+  return options;
+};
+
+// Helper function to find the currently selected SelectOption object based on its value (used for Controller/SearchableSelect)
+export const findOptionByValue = (options: SelectOption[] | undefined, value: string | undefined): SelectOption | undefined => {
+  if (!options || !value) return undefined;
+  return options.find(opt => opt.value === value);
+};
+
 export interface DropdownProps {
   onClose: () => void;
   top?: number;
@@ -46,9 +78,22 @@ export interface FormData {
 }
 
 export interface CreatePartyFormData {
-   platform: string;
-   watchDate: string;
+   streamingPlatform: string;
+   scheduledAt: string;
    description: string;
+   filmId: string;
+   time: string;
+   participants: SelectOption[]; // Array of selected user options (for react-hook-form)
+}
+
+export interface WatchPartyPayload {
+    filmId: string;
+    description: string;
+    scheduledAt: string;
+    time: string; // This needs to match the format expected by the BE (e.g., "8:00 PM")
+    streamingPlatform: string;
+    isPrivate: boolean; // Derived from the component's state
+    participants: string[]; // Array of User IDs
 }
 
 // The payload sent to the /reviews API
@@ -236,3 +281,140 @@ export interface MovieApiResponse {
   };
 }
 
+
+// utils/utils or types.ts (Update this file with the new types)
+
+// Existing types (for context, assuming they are defined elsewhere)
+// type SelectOption = { value: string; label: string; };
+// type ErrorResponse = { message: string };
+// type MovieApiResponse = { success: boolean; data: { movies: Array<{ id: string; title: string; ... }> } };
+
+// New types for Watch Party data
+export interface WatchPartyParticipant {
+  id: string;
+  email: string;
+  userName: string;
+  displayPictureUrl: string | null;
+}
+
+export interface WatchPartyHost {
+  id: string;
+  email: string;
+  userName: string;
+  displayPictureUrl: string | null;
+  // Other host details...
+}
+
+export interface WatchPartyFilm {
+  id: string;
+  title: string;
+  posterUrl: string;
+  // Other film details...
+}
+
+export interface WatchPartyApiItem {
+  id: string;
+  description: string;
+  scheduledAt: string; // "2025-12-25T00:00:00.000Z"
+  time: string; // "20:00:00"
+  streamingPlatform: string;
+  isPrivate: boolean;
+  hostId: string;
+  filmId: string;
+  host: WatchPartyHost;
+  film: WatchPartyFilm;
+  participants: WatchPartyParticipant[]; // The participants array from the API
+}
+
+export interface WatchPartiesApiResponse {
+  success: boolean;
+  message: string;
+  data: WatchPartyApiItem[];
+}
+
+// Your existing WatchParty interface (the one used in components)
+export interface WatchParty {
+  id: string;
+  imageSrc: string;
+  title: string;
+  time: string;
+  date: string;
+  participants: string[]; // Array of participant names or initials
+  host: string; // Host's name
+}
+
+export const refreshToken = async () => {
+  localStorage.clear();
+  window.location.href = "/auth/login"; // This redirects the user
+};
+
+export interface UserApiItem {
+  id: string;
+  email: string;
+  userName: string;
+  displayPictureUrl: string | null;
+  // ... other user fields you don't need for the select
+}
+
+export interface AllUsersApiResponse {
+  success: boolean;
+  message: string;
+  data: {
+    data: UserApiItem[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }
+}
+
+
+export interface WatchPartyHost {
+    id: string;
+    email: string;
+    userName: string;
+    displayPictureUrl: string | null;
+    isEmailVerified: boolean;
+}
+
+export interface WatchPartyFilm {
+    id: string;
+    title: string;
+    originalTitle: string;
+    overview: string;
+    releaseDate: string; // "YYYY-MM-DD"
+    runtime: number | null;
+    posterUrl: string ;
+    backdropUrl: string | null;
+    averageRating: string;
+}
+
+export interface WatchPartyParticipant {
+    id: string;
+    email: string;
+    userName: string;
+}
+
+export interface WatchPartyData {
+    id: string;
+    description: string;
+    scheduledAt: string; // ISO Date string (e.g., "2025-12-25T00:00:00.000Z")
+    time: string; // Time string (e.g., "20:00:00")
+    streamingPlatform: string;
+    isPrivate: boolean;
+    createdAt: string;
+    updatedAt: string;
+    hostId: string;
+    filmId: string;
+    host: WatchPartyHost;
+    film: WatchPartyFilm;
+    participants: WatchPartyParticipant[];
+}
+
+// --- Main API Response Interface ---
+
+export interface WatchPartyApiResponse {
+    success: boolean;
+    message: string;
+    data: WatchPartyData;
+}

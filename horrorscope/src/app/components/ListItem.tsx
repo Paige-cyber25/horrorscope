@@ -6,7 +6,7 @@ import React, { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import useOnClickOutside from "@/hooks/useOnClickOutside";
-import { formatNumber, ListData } from "@/utils/utils"; 
+import { capitalizeFirstLetter, formatNumber, ListData } from "@/utils/utils"; 
 import PopularListDropdown from "../list/PopularListDropdown";
 
 const ListItem = ({ list }: { list: ListData }) => {
@@ -119,7 +119,7 @@ const ListItem = ({ list }: { list: ListData }) => {
             className="rounded-full sm:w-6 sm:h-6 object-cover"
           />
           <span className="text-gray-200 text-[10px] sm:text-[12px] font-opensans font-medium">
-            {reviewer}
+            {capitalizeFirstLetter(reviewer)}
           </span>
           <div className="text-[#D1D5DB] flex items-center">
             <Icon icon="ph:dot" className="text-3xl" />
