@@ -12,6 +12,7 @@ interface WatchPartyCardProps {
   date: string;
   participants: string[];
   host: string;
+  isPrivate?: boolean;
 }
 
 const WatchPartyCard = ({
@@ -37,9 +38,11 @@ const WatchPartyCard = ({
         <h2 className="text-[12px] sm:text-base font-bold whitespace-wrap lg:whitespace-nowrap overflow-hidden text-overflow-ellipsis max-w-[60%]">
           {title}
         </h2>
-        <button className="cursor-pointer text-base font-semibold text-white bg-[rgba(255,255,255,0.1)] rounded-[8px] px-2 py-1">
+        {/* {isPrivate !== true && (
+          <button className="cursor-pointer text-base font-semibold text-white bg-[rgba(255,255,255,0.1)] rounded-[8px] px-2 py-1">
           Ask to Join
         </button>
+        )} */}
       </div>
       <p className="text-[12px] sm:text-[14px] font-bevietnampro font-medium text-gray-200">
         Watch on {time}, {date}

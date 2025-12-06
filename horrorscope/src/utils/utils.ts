@@ -341,6 +341,7 @@ export interface WatchParty {
   date: string;
   participants: string[]; // Array of participant names or initials
   host: string; // Host's name
+  isPrivate?: boolean;
 }
 
 export const refreshToken = async () => {
@@ -417,4 +418,16 @@ export interface WatchPartyApiResponse {
     success: boolean;
     message: string;
     data: WatchPartyData;
+}
+
+// types/review.ts or inside the hook file
+export interface PopularReview {
+  id: string;
+  title: string;
+  imageSrc: string; // poster URL
+  likes: number;
+  comments: number;
+  reviewer: string;
+  reviewText?: string;
+  // add more if needed: reviewText, filmId, etc.
 }

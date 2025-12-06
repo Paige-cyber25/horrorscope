@@ -9,6 +9,7 @@ interface WatchParty {
   date: string;
   participants: string[]; // Array of participant names or initials
   host: string; // Host's name
+  isPrivate?: boolean;
 }
 
 interface WatchPartyListProps {
@@ -29,6 +30,7 @@ const WatchPartyList: React.FC<WatchPartyListProps> = ({ parties }) => {
             date={party.date}
             participants={party.participants}
             host={party.host}
+            isPrivate={party.isPrivate}
           />
         ))}
       </div>

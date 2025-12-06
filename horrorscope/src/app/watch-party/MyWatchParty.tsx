@@ -76,13 +76,8 @@ const MyWatchParty = () => {
       </div>
     );
   }
-
   // --- Data State ---
-  const displayParties: WatchParty[] = filteredParties.map(p => {
-    // Cast back to the original WatchParty type for the component
-    const { isPrivate, ...rest } = p;
-    return rest as WatchParty;
-  });
+  const displayParties: FilterableWatchParty[] = filteredParties;
 
   return (
     <div className="mt-6">

@@ -8,7 +8,6 @@ import useOnClickOutside from "@/hooks/useOnClickOutside";
 import { DropdownProps } from "@/utils/utils";
 import Input from "../components/input/Input";
 import TextArea from "../components/input/TextArea";
-import SearchableSelect from "../components/input/SearchableSelect";
 import Button from "../components/button/Button";
 
 interface FormData {
@@ -19,16 +18,6 @@ interface FormData {
 const CreateNewList = ({ onClose }: DropdownProps) => {
     const dropdownRef = useRef<HTMLDivElement>(null);
     useOnClickOutside(dropdownRef as RefObject<HTMLElement>, onClose);
-  
-    const options = [
-      { value: "option1", label: "Option 1" },
-      { value: "option2", label: "Option 2" },
-      { value: "option3", label: "Option 3" },
-    ];
-  
-    const handleChange = (value: string) => {
-      console.log("Selected value:", value);
-    };
   
     const {
       control,
